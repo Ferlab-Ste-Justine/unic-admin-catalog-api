@@ -1,8 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 
-import { ServiceResponse } from '../../../common/models/serviceResponse';
-import { app } from '../../../server';
+import { ServiceResponse } from '@/common/models/serviceResponse';
+import { app } from '@/server';
+
 import { User } from '../userModel';
 import { users } from '../userRepository';
 
@@ -11,7 +12,9 @@ describe('User API Endpoints', () => {
     it('should return a list of users', async () => {
       // Act
       const response = await request(app).get('/users');
+
       const responseBody: ServiceResponse<User[]> = response.body;
+      console.log(responseBody);
 
       // Assert
       expect(response.statusCode).toEqual(StatusCodes.OK);

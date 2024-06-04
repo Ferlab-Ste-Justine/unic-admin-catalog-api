@@ -22,7 +22,8 @@ export const userRouter: Router = (() => {
     tags: ['User'],
     responses: createApiResponse(z.array(UserSchema), 'Success'),
   });
-  router.get('/users', async (_req: Request, res: Response) => {
+
+  router.get('/', async (_req: Request, res: Response) => {
     const serviceResponse = await userService.findAll();
     handleServiceResponse(serviceResponse, res);
   });
@@ -35,7 +36,8 @@ export const userRouter: Router = (() => {
     request: { params: GetUserSchema.shape.params },
     responses: createApiResponse(UserSchema, 'Success'),
   });
-  router.get('/users/:id', validateRequest(GetUserSchema), async (req: Request, res: Response) => {
+
+  router.get('/:id', validateRequest(GetUserSchema), async (req: Request, res: Response) => {
     const id = parseInt(req.params.id as string, 10);
     const serviceResponse = await userService.findById(id);
     handleServiceResponse(serviceResponse, res);
@@ -57,7 +59,7 @@ export const userRouter: Router = (() => {
     },
     responses: createApiResponse(UserSchema, 'Success'),
   });
-  router.post('/users/register', validateRequest(registerSchema), async (req: Request, res: Response) => {
+  router.post('/register', validateRequest(registerSchema), async (req: Request, res: Response) => {
     // const {name, email, password} = req.body;
     try {
       // const user = new User({name, email, password});
@@ -84,7 +86,7 @@ export const userRouter: Router = (() => {
     },
     responses: createApiResponse(z.object({ token: z.string() }), 'Success'),
   });
-  router.post('/users/login', validateRequest(loginSchema), async (req: Request, res: Response) => {
+  router.post('/login', validateRequest(loginSchema), async (req: Request, res: Response) => {
     // const {email, password} = req.body;
     try {
       // const user = await User.findOne({email});
