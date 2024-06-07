@@ -7,8 +7,8 @@ import { z } from 'zod';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import { validateRequest } from '@/common/utils/httpHandlers';
 
-import { GetUserSchema, loginSchema, registerSchema, UserSchema } from './userModel';
-import { createUser, findAllUsers, findUserByEmail, findUserById } from './userRepository';
+import { GetUserSchema, LoginUserSchema, RegisterUserSchema, UserSchema } from './userModel';
+import { userService } from './userService';
 
 export const userRegistry = new OpenAPIRegistry();
 
@@ -25,7 +25,7 @@ export const userRouter: Router = (() => {
     responses: createApiResponse(z.array(UserSchema), 'Success'),
   });
   router.get('/', async (_req: Request, res: Response) => {
-    const users = await findAllUsers();
+    const users = await userService.findAll();
     res.json(users);
   });
 
@@ -39,7 +39,7 @@ export const userRouter: Router = (() => {
   });
   router.get('/:id', validateRequest(GetUserSchema), async (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
-    const user = await findUserById(id);
+    const user = await userService.findById(id);
     if (user) {
       res.json(user);
     } else {
@@ -56,18 +56,18 @@ export const userRouter: Router = (() => {
       body: {
         content: {
           'application/json': {
-            schema: registerSchema,
+            schema: RegisterUserSchema,
           },
         },
       },
     },
     responses: createApiResponse(UserSchema, 'Success'),
   });
-  router.post('/register', validateRequest(registerSchema), async (req: Request, res: Response) => {
+  router.post('/register', validateRequest(RegisterUserSchema), async (req: Request, res: Response) => {
     const { name, email, password } = req.body;
 
     try {
-      const user = await createUser({ name, email, password });
+      const user = await userService.register({ name, email, password });
       res.status(201).json(user);
     } catch (error) {
       res.status(400).send('Error registering user');
@@ -83,21 +83,21 @@ export const userRouter: Router = (() => {
       body: {
         content: {
           'application/json': {
-            schema: loginSchema,
+            schema: LoginUserSchema,
           },
         },
       },
     },
     responses: createApiResponse(z.object({ token: z.string() }), 'Success'),
   });
-  router.post('/login', validateRequest(loginSchema), async (req: Request, res: Response) => {
+  router.post('/login', validateRequest(LoginUserSchema), async (req: Request, res: Response) => {
     const { email, password } = req.body;
     try {
-      const user = await findUserByEmail(email);
-      if (!user || !(await bcrypt.compare(password, user.password))) {
+      const repsonse = await userService.findByEmail(email);
+      if (!repsonse.responseObject || !(await bcrypt.compare(password, repsonse.responseObject.password))) {
         return res.status(400).send('Invalid credentials');
       }
-      const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
+      const token = jwt.sign({ userId: repsonse.responseObject.id }, 'your_jwt_secret', { expiresIn: '1h' });
       res.json({ token });
     } catch (error) {
       res.status(500).send('Error logging in');

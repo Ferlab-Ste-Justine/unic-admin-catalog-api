@@ -7,12 +7,12 @@ extendZodWithOpenApi(z);
 
 export type User = z.infer<typeof UserSchema>;
 export const UserSchema = z.object({
-  id: z.number(),
+  id: z.number().optional(),
   name: z.string(),
   email: z.string().email(),
   password: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
+  createdAt: z.date().optional(),
+  updatedAt: z.date().optional(),
 });
 
 // Input Validation for 'GET users/:id' endpoint
@@ -21,7 +21,7 @@ export const GetUserSchema = z.object({
 });
 
 // Input Validation for 'POST users/register' endpoint
-export const registerSchema = z.object({
+export const RegisterUserSchema = z.object({
   body: z.object({
     name: z.string().min(1, 'Name is required'),
     email: z.string().email('Invalid email address'),
@@ -30,7 +30,7 @@ export const registerSchema = z.object({
 });
 
 // Input Validation for 'POST users/login' endpoint
-export const loginSchema = z.object({
+export const LoginUserSchema = z.object({
   body: z.object({
     email: z.string().email('Invalid email address'),
     password: z.string().min(6, 'Password must be at least 6 characters long'),

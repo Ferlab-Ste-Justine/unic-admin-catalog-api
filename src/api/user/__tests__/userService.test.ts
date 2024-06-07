@@ -51,7 +51,7 @@ describe.skip('userService', () => {
   describe('findAll', () => {
     it('return all users', async () => {
       // Arrange
-      (userRepository.findAllAsync as Mock).mockReturnValue(mockUsers);
+      (userRepository.findAllUsers as Mock).mockReturnValue(mockUsers);
 
       // Act
       const result = await userService.findAll();
@@ -65,7 +65,7 @@ describe.skip('userService', () => {
 
     it('returns a not found error for no users found', async () => {
       // Arrange
-      (userRepository.findAllAsync as Mock).mockReturnValue(null);
+      (userRepository.findAllUsers as Mock).mockReturnValue(null);
 
       // Act
       const result = await userService.findAll();
@@ -79,7 +79,7 @@ describe.skip('userService', () => {
 
     it('handles errors for findAllAsync', async () => {
       // Arrange
-      (userRepository.findAllAsync as Mock).mockRejectedValue(new Error('Database error'));
+      (userRepository.findAllUsers as Mock).mockRejectedValue(new Error('Database error'));
 
       // Act
       const result = await userService.findAll();
@@ -97,7 +97,7 @@ describe.skip('userService', () => {
       // Arrange
       const testId = 1;
       const mockUser = mockUsers.find((user) => user.id === testId);
-      (userRepository.findByIdAsync as Mock).mockReturnValue(mockUser);
+      (userRepository.findUserById as Mock).mockReturnValue(mockUser);
 
       // Act
       const result = await userService.findById(testId);
@@ -112,7 +112,7 @@ describe.skip('userService', () => {
     it('handles errors for findByIdAsync', async () => {
       // Arrange
       const testId = 1;
-      (userRepository.findByIdAsync as Mock).mockRejectedValue(new Error('Database error'));
+      (userRepository.findUserById as Mock).mockRejectedValue(new Error('Database error'));
 
       // Act
       const result = await userService.findById(testId);
@@ -127,7 +127,7 @@ describe.skip('userService', () => {
     it('returns a not found error for non-existent ID', async () => {
       // Arrange
       const testId = 1;
-      (userRepository.findByIdAsync as Mock).mockReturnValue(null);
+      (userRepository.findUserById as Mock).mockReturnValue(null);
 
       // Act
       const result = await userService.findById(testId);
