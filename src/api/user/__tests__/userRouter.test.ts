@@ -7,7 +7,7 @@ import { ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
 import { User } from '../userModel';
-import { createUser, findAllUsers, findUserByEmail, findUserById } from '../userRepository';
+import { userRepository } from '../userRepository';
 
 // Mocking userRepository methods
 vi.mock('../userRepository');
@@ -53,14 +53,14 @@ describe.skip('User API Endpoints', () => {
     expect(actualUser.id).toEqual(expectedUser.id);
     expect(actualUser.name).toEqual(expectedUser.name);
     expect(actualUser.email).toEqual(expectedUser.email);
-    expect(new Date(actualUser.createdAt)).toEqual(new Date(expectedUser.createdAt));
-    expect(new Date(actualUser.updatedAt)).toEqual(new Date(expectedUser.updatedAt));
+    expect(new Date(actualUser.createdAt!)).toEqual(new Date(expectedUser.createdAt!));
+    expect(new Date(actualUser.updatedAt!)).toEqual(new Date(expectedUser.updatedAt!));
   };
 
   describe('GET /users', () => {
     it('should return a list of users', async () => {
       // Mocking findAllUsers
-      (findAllUsers as Mock).mockResolvedValue(users);
+      (userRepository.findAllUsers as Mock).mockResolvedValue(users);
 
       // Act
       const response = await request(app).get('/users');
@@ -83,7 +83,7 @@ describe.skip('User API Endpoints', () => {
       const expectedUser = users.find((user) => user.id === testId);
 
       // Mocking findUserById
-      (findUserById as Mock).mockResolvedValue(expectedUser);
+      (userRepository.findUserById as Mock).mockResolvedValue(expectedUser);
 
       // Act
       const response = await request(app).get(`/users/${testId}`);
@@ -101,7 +101,7 @@ describe.skip('User API Endpoints', () => {
       const testId = Number.MAX_SAFE_INTEGER;
 
       // Mocking findUserById for non-existent ID
-      (findUserById as Mock).mockResolvedValue(null);
+      (userRepository.findUserById as Mock).mockResolvedValue(null);
 
       // Act
       const response = await request(app).get(`/users/${testId}`);
@@ -138,7 +138,7 @@ describe.skip('User API Endpoints', () => {
       };
 
       // Mocking createUser
-      (createUser as Mock).mockResolvedValue({ ...newUser, id: 1 });
+      (userRepository.createUser as Mock).mockResolvedValue({ ...newUser, id: 1 });
 
       // Act
       const response = await request(app).post('/users/register').send(newUser);
@@ -183,7 +183,7 @@ describe.skip('User API Endpoints', () => {
       };
 
       // Mocking findUserByEmail
-      (findUserByEmail as Mock).mockResolvedValue(user);
+      (userRepository.findUserByEmail as Mock).mockResolvedValue(user);
 
       // Act
       const response = await request(app).post('/users/login').send({
@@ -209,7 +209,7 @@ describe.skip('User API Endpoints', () => {
       };
 
       // Mocking findUserByEmail for non-existent user
-      (findUserByEmail as Mock).mockResolvedValue(null);
+      (userRepository.findUserByEmail as Mock).mockResolvedValue(null);
 
       // Act
       const response = await request(app).post('/users/login').send({
