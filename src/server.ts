@@ -10,10 +10,12 @@ import errorHandler from '@/common/middleware/errorHandler';
 import rateLimiter from '@/common/middleware/rateLimiter';
 import requestLogger from '@/common/middleware/requestLogger';
 import { env } from '@/common/utils/envConfig';
+import pool from '@/db';
 
 const logger = pino({ name: 'server start' });
 const app: Express = express();
 
+app.use(express.json());
 // Set the application to trust the reverse proxy
 app.set('trust proxy', true);
 
@@ -34,5 +36,7 @@ app.use(openAPIRouter);
 
 // Error handlers
 app.use(errorHandler());
+
+pool.connect();
 
 export { app, logger };

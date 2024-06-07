@@ -1,12 +1,14 @@
 import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
+import bcrypt from 'bcrypt';
 import express, { Request, Response, Router } from 'express';
+import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
-import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { validateRequest } from '@/common/utils/httpHandlers';
 
 import { GetUserSchema, loginSchema, registerSchema, UserSchema } from './userModel';
-import { userService } from './userService';
+import { createUser, findAllUsers, findUserByEmail, findUserById } from './userRepository';
 
 export const userRegistry = new OpenAPIRegistry();
 
@@ -22,10 +24,9 @@ export const userRouter: Router = (() => {
     tags: ['User'],
     responses: createApiResponse(z.array(UserSchema), 'Success'),
   });
-
   router.get('/', async (_req: Request, res: Response) => {
-    const serviceResponse = await userService.findAll();
-    handleServiceResponse(serviceResponse, res);
+    const users = await findAllUsers();
+    res.json(users);
   });
 
   // Get user by ID
@@ -36,11 +37,14 @@ export const userRouter: Router = (() => {
     request: { params: GetUserSchema.shape.params },
     responses: createApiResponse(UserSchema, 'Success'),
   });
-
   router.get('/:id', validateRequest(GetUserSchema), async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id as string, 10);
-    const serviceResponse = await userService.findById(id);
-    handleServiceResponse(serviceResponse, res);
+    const id = parseInt(req.params.id, 10);
+    const user = await findUserById(id);
+    if (user) {
+      res.json(user);
+    } else {
+      res.status(404).send('User not found');
+    }
   });
 
   // Register a new user
@@ -60,11 +64,11 @@ export const userRouter: Router = (() => {
     responses: createApiResponse(UserSchema, 'Success'),
   });
   router.post('/register', validateRequest(registerSchema), async (req: Request, res: Response) => {
-    // const {name, email, password} = req.body;
+    const { name, email, password } = req.body;
+
     try {
-      // const user = new User({name, email, password});
-      // await user.save();
-      res.status(201).send('User registered successfully');
+      const user = await createUser({ name, email, password });
+      res.status(201).json(user);
     } catch (error) {
       res.status(400).send('Error registering user');
     }
@@ -87,14 +91,14 @@ export const userRouter: Router = (() => {
     responses: createApiResponse(z.object({ token: z.string() }), 'Success'),
   });
   router.post('/login', validateRequest(loginSchema), async (req: Request, res: Response) => {
-    // const {email, password} = req.body;
+    const { email, password } = req.body;
     try {
-      // const user = await User.findOne({email});
-      // if (!user || !(await user.comparePassword(password))) {
-      //     return res.status(400).send('Invalid credentials');
-      // }
-      // const token = jwt.sign({userId: user._id}, 'your_jwt_secret', {expiresIn: '1h'});
-      // res.json({token});
+      const user = await findUserByEmail(email);
+      if (!user || !(await bcrypt.compare(password, user.password))) {
+        return res.status(400).send('Invalid credentials');
+      }
+      const token = jwt.sign({ userId: user.id }, 'your_jwt_secret', { expiresIn: '1h' });
+      res.json({ token });
     } catch (error) {
       res.status(500).send('Error logging in');
     }
