@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
-import { validateRequest } from '@/common/utils/httpHandlers';
+import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
 
 import {
   AnalystSchema,
@@ -16,14 +16,16 @@ import {
 } from './analystModel';
 import { analystService } from './analystService';
 
+// Initialize OpenAPI registry
 export const analystRegistry = new OpenAPIRegistry();
-
 analystRegistry.register('Analyst', AnalystSchema);
 
+// Define analyst router
 export const analystRouter: Router = (() => {
   const router = express.Router();
 
-  // Get all analysts
+  router.use(verifyToken);
+
   analystRegistry.registerPath({
     method: 'get',
     path: '/analysts',
@@ -33,17 +35,8 @@ export const analystRouter: Router = (() => {
     },
     responses: createApiResponse(z.array(AnalystSchema), 'Success'),
   });
-  router.get('/', verifyToken, validateRequest(GetAnalystsSchema), async (req: Request, res: Response) => {
-    const search = req.query.name as string | undefined;
-    try {
-      const analysts = await analystService.findAll(search);
-      res.json(analysts);
-    } catch (error) {
-      res.status(500).send('Error fetching analysts');
-    }
-  });
+  router.get('/', validateRequest(GetAnalystsSchema), getAllAnalysts);
 
-  // Get analyst by ID
   analystRegistry.registerPath({
     method: 'get',
     path: '/analysts/{id}',
@@ -53,21 +46,8 @@ export const analystRouter: Router = (() => {
     },
     responses: createApiResponse(AnalystSchema, 'Success'),
   });
-  router.get('/:id', verifyToken, validateRequest(GetAnalystSchema), async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      const analyst = await analystService.findById(id);
-      if (analyst) {
-        res.json(analyst);
-      } else {
-        res.status(404).send('Analyst not found');
-      }
-    } catch (error) {
-      res.status(500).send('Error fetching analyst');
-    }
-  });
+  router.get('/:id', validateRequest(GetAnalystSchema), getAnalystById);
 
-  // Create a new analyst
   analystRegistry.registerPath({
     method: 'post',
     path: '/analysts',
@@ -83,17 +63,8 @@ export const analystRouter: Router = (() => {
     },
     responses: createApiResponse(AnalystSchema, 'Success'),
   });
-  router.post('/', verifyToken, validateRequest(CreateAnalystSchema), async (req: Request, res: Response) => {
-    const { name } = req.body;
-    try {
-      const newAnalyst = await analystService.create({ name });
-      res.status(201).json(newAnalyst);
-    } catch (error) {
-      res.status(500).send('Error creating analyst');
-    }
-  });
+  router.post('/', validateRequest(CreateAnalystSchema), createNewAnalyst);
 
-  // Update analyst
   analystRegistry.registerPath({
     method: 'put',
     path: '/analysts/{id}',
@@ -110,22 +81,8 @@ export const analystRouter: Router = (() => {
     },
     responses: createApiResponse(AnalystSchema, 'Success'),
   });
-  router.put('/:id', verifyToken, validateRequest(UpdateAnalystSchema), async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    const { name } = req.body;
-    try {
-      const updatedAnalyst = await analystService.update(id, { name });
-      if (updatedAnalyst) {
-        res.json(updatedAnalyst);
-      } else {
-        res.status(404).send('Analyst not found');
-      }
-    } catch (error) {
-      res.status(500).send('Error updating analyst');
-    }
-  });
+  router.put('/:id', validateRequest(UpdateAnalystSchema), updateAnalystById);
 
-  // Delete analyst
   analystRegistry.registerPath({
     method: 'delete',
     path: '/analysts/{id}',
@@ -135,15 +92,36 @@ export const analystRouter: Router = (() => {
     },
     responses: createApiResponse(AnalystSchema, 'Success'),
   });
-  router.delete('/:id', verifyToken, validateRequest(DeleteAnalystSchema), async (req: Request, res: Response) => {
-    const id = parseInt(req.params.id, 10);
-    try {
-      await analystService.delete(id);
-      res.status(204).send();
-    } catch (error) {
-      res.status(500).send('Error deleting analyst');
-    }
-  });
+  router.delete('/:id', validateRequest(DeleteAnalystSchema), deleteAnalystById);
 
   return router;
 })();
+
+async function getAllAnalysts(req: Request, res: Response) {
+  const search = req.query.name as string | undefined;
+  const analysts = await analystService.findAll(search);
+  handleServiceResponse(analysts, res);
+}
+
+async function getAnalystById(req: Request, res: Response) {
+  const id = parseInt(req.params.id, 10);
+  const analyst = await analystService.findById(id);
+  handleServiceResponse(analyst, res);
+}
+
+async function createNewAnalyst(req: Request, res: Response) {
+  const newAnalyst = await analystService.create(req.body);
+  handleServiceResponse(newAnalyst, res);
+}
+
+async function updateAnalystById(req: Request, res: Response) {
+  const id = parseInt(req.params.id, 10);
+  const updatedAnalyst = await analystService.update(id, req.body);
+  handleServiceResponse(updatedAnalyst, res);
+}
+
+async function deleteAnalystById(req: Request, res: Response) {
+  const id = parseInt(req.params.id, 10);
+  const deleteResponse = await analystService.delete(id);
+  handleServiceResponse(deleteResponse, res);
+}

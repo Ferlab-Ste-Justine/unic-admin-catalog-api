@@ -26,7 +26,7 @@ export const userRepository = {
   },
 
   findAllUsers: async (): Promise<User[]> => {
-    const query = `SELECT id, name, email, created_at, updated_at
+    const query = `SELECT *
                        FROM catalog.user`;
     const res = await pool.query(query);
     return res.rows;

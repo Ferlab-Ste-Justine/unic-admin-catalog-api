@@ -7,22 +7,18 @@ import { Analyst } from './analystModel';
 import { analystRepository } from './analystRepository';
 
 export const analystService = {
-  findAll: async (search?: string): Promise<ServiceResponse<Analyst[] | null>> => {
+  findAll: async (name?: string): Promise<ServiceResponse<Analyst[] | null>> => {
     try {
-      let analysts: Analyst[];
-      if (search) {
-        analysts = await analystRepository.findAllAnalystsByName(search);
-      } else {
-        analysts = await analystRepository.findAllAnalysts();
+      const analysts = await analystRepository.findAllAnalysts(name);
+      if (!analysts.length) {
+        return new ServiceResponse(ResponseStatus.Failed, 'No analysts found', null, StatusCodes.NOT_FOUND);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Analysts found', analysts, StatusCodes.OK);
     } catch (error) {
-      return new ServiceResponse(
-        ResponseStatus.Failed,
-        'Error finding analysts',
-        null,
-        StatusCodes.INTERNAL_SERVER_ERROR
-      );
+      const errorMessage = `Error finding all analysts: ${(error as Error).message}`;
+      logger.error(errorMessage);
+
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
 
@@ -80,13 +76,14 @@ export const analystService = {
     }
   },
 
-  delete: async (id: number): Promise<void> => {
+  delete: async (id: number): Promise<ServiceResponse> => {
     try {
       await analystRepository.deleteAnalyst(id);
+      return new ServiceResponse(ResponseStatus.Success, 'Analyst deleted successfully', null, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error deleting analyst with id ${id}: ${(error as Error).message}`;
       logger.error(errorMessage);
-      throw new Error(errorMessage);
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
 };

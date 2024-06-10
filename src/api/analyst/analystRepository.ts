@@ -21,20 +21,17 @@ export const analystRepository = {
     return res.rows[0] || null;
   },
 
-  findAllAnalysts: async (): Promise<Analyst[]> => {
-    const query = `SELECT *
-                       FROM catalog.analyst`;
-    const res = await pool.query(query);
-    return res.rows;
-  },
+  findAllAnalysts: async (name?: string): Promise<Analyst[]> => {
+    let query = `SELECT *
+                     FROM catalog.analyst`;
+    const values: any[] = [];
 
-  findAllAnalystsByName: async (name: string): Promise<Analyst[]> => {
-    const query = `
-            SELECT *
-            FROM catalog.analyst
-            WHERE name ILIKE $1;
-        `;
-    const res = await pool.query(query, [`%${name}%`]);
+    if (name) {
+      query += ` WHERE name ILIKE $1`;
+      values.push(`%${name}%`);
+    }
+
+    const res = await pool.query(query, values);
     return res.rows;
   },
 
