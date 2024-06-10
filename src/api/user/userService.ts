@@ -13,8 +13,8 @@ export const userService = {
         return new ServiceResponse(ResponseStatus.Failed, 'No Users found', null, StatusCodes.NOT_FOUND);
       }
       return new ServiceResponse<User[]>(ResponseStatus.Success, 'Users found', users, StatusCodes.OK);
-    } catch (ex) {
-      const errorMessage = `Error finding all users: $${(ex as Error).message}`;
+    } catch (error) {
+      const errorMessage = `Error finding all users: $${(error as Error).message}`;
       logger.error(errorMessage);
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
@@ -28,8 +28,8 @@ export const userService = {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
       }
       return new ServiceResponse<User>(ResponseStatus.Success, 'User found', user, StatusCodes.OK);
-    } catch (ex) {
-      const errorMessage = `Error finding user with id ${id}:, ${(ex as Error).message}`;
+    } catch (error) {
+      const errorMessage = `Error finding user with id ${id}:, ${(error as Error).message}`;
       logger.error(errorMessage);
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
@@ -42,8 +42,8 @@ export const userService = {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
       }
       return new ServiceResponse<User>(ResponseStatus.Success, 'User found', user, StatusCodes.OK);
-    } catch (ex) {
-      const errorMessage = `Error finding user with email ${email}:, ${(ex as Error).message}`;
+    } catch (error) {
+      const errorMessage = `Error finding user with email ${email}:, ${(error as Error).message}`;
       logger.error(errorMessage);
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
@@ -53,8 +53,8 @@ export const userService = {
     try {
       const user = await userRepository.createUser(body);
       return new ServiceResponse<User>(ResponseStatus.Success, 'User created successfully', user, StatusCodes.CREATED);
-    } catch (ex) {
-      const errorMessage = `Error creating user:, ${(ex as Error).message}`;
+    } catch (error) {
+      const errorMessage = `Error creating user:, ${(error as Error).message}`;
       logger.error(errorMessage);
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }

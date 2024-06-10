@@ -5,6 +5,7 @@ import jwt from 'jsonwebtoken';
 import { z } from 'zod';
 
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
+import verifyToken from '@/common/middleware/verifyToken';
 import { validateRequest } from '@/common/utils/httpHandlers';
 
 import { GetUserSchema, LoginUserSchema, RegisterUserSchema, UserSchema } from './userModel';
@@ -24,7 +25,8 @@ export const userRouter: Router = (() => {
     tags: ['User'],
     responses: createApiResponse(z.array(UserSchema), 'Success'),
   });
-  router.get('/', async (_req: Request, res: Response) => {
+
+  router.get('/', verifyToken, async (_req: Request, res: Response) => {
     const users = await userService.findAll();
     res.json(users);
   });
@@ -37,7 +39,7 @@ export const userRouter: Router = (() => {
     request: { params: GetUserSchema.shape.params },
     responses: createApiResponse(UserSchema, 'Success'),
   });
-  router.get('/:id', validateRequest(GetUserSchema), async (req: Request, res: Response) => {
+  router.get('/:id', verifyToken, validateRequest(GetUserSchema), async (req: Request, res: Response) => {
     const id = parseInt(req.params.id, 10);
     const user = await userService.findById(id);
     if (user) {
@@ -56,7 +58,7 @@ export const userRouter: Router = (() => {
       body: {
         content: {
           'application/json': {
-            schema: RegisterUserSchema,
+            schema: RegisterUserSchema.shape.body,
           },
         },
       },
@@ -83,7 +85,7 @@ export const userRouter: Router = (() => {
       body: {
         content: {
           'application/json': {
-            schema: LoginUserSchema,
+            schema: LoginUserSchema.shape.body,
           },
         },
       },
