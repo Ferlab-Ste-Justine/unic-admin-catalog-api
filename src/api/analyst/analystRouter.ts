@@ -16,11 +16,9 @@ import {
 } from './analystModel';
 import { analystService } from './analystService';
 
-// Initialize OpenAPI registry
 export const analystRegistry = new OpenAPIRegistry();
 analystRegistry.register('Analyst', AnalystSchema);
 
-// Define analyst router
 export const analystRouter: Router = (() => {
   const router = express.Router();
 

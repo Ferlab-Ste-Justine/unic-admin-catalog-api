@@ -9,11 +9,9 @@ import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandl
 import { GetUserSchema, LoginUserSchema, RegisterUserSchema, UserSchema } from './userModel';
 import { userService } from './userService';
 
-// Initialize OpenAPI registry
 export const userRegistry = new OpenAPIRegistry();
 userRegistry.register('User', UserSchema);
 
-// Define user router
 export const userRouter: Router = (() => {
   const router = express.Router();
 

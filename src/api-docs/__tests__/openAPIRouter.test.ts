@@ -16,7 +16,7 @@ vi.mock('pg', () => {
     query: vi.fn(() => Promise.resolve()),
     end: vi.fn(),
   };
-  return { Pool: vi.fn(() => mPool) }; // Exporting Pool
+  return { Pool: vi.fn(() => mPool) };
 });
 
 describe('OpenAPI Router', () => {

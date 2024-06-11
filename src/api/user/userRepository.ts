@@ -6,6 +6,12 @@ import { NewUser, PublicUser, User } from './userModel';
 export const userRepository = {
   createUser: async (user: NewUser): Promise<PublicUser> => {
     const { name, email, password } = user;
+
+    const existingUser = await db.selectFrom('catalog.user').where('email', '=', email).select('id').execute();
+    if (existingUser.length > 0) {
+      throw new Error('Email is already in use');
+    }
+
     const hashedPassword = await bcrypt.hash(password, 10);
     return await db
       .insertInto('catalog.user')

@@ -7,7 +7,7 @@ import { userRepository } from '@/api/user/userRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
-const JWT_SECRET = process.env.JWT_SECRET as string; // Consider moving this to a config file
+const JWT_SECRET = process.env.JWT_SECRET as string;
 
 export const userService = {
   findAll: async (): Promise<ServiceResponse<PublicUser[] | null>> => {
