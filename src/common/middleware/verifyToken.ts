@@ -5,6 +5,8 @@ export interface JwtRequest extends Request {
   token: string | JwtPayload;
 }
 
+const JWT_SECRET = process.env.JWT_SECRET as string;
+
 const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   const authHeader = req.headers.authorization;
   if (!authHeader) {
@@ -17,7 +19,7 @@ const verifyToken = (req: Request, res: Response, next: NextFunction) => {
   }
 
   try {
-    (req as JwtRequest).token = jwt.verify(token, 'your_jwt_secret');
+    (req as JwtRequest).token = jwt.verify(token, JWT_SECRET);
     next();
   } catch (error) {
     res.status(400).send('Invalid token.');

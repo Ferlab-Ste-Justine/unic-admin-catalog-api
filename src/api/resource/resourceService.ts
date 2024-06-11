@@ -4,7 +4,7 @@ import { analystRepository } from '@/api/analyst/analystRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
-import { Resource } from './resourceModel';
+import { NewResource, Resource, ResourceUpdate } from './resourceModel';
 import { resourceRepository } from './resourceRepository';
 
 export const resourceService = {
@@ -14,7 +14,7 @@ export const resourceService = {
       if (!resources.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No resources found', null, StatusCodes.NOT_FOUND);
       }
-      return new ServiceResponse<Resource[]>(ResponseStatus.Success, 'Resources found', resources, StatusCodes.OK);
+      return new ServiceResponse(ResponseStatus.Success, 'Resources found', resources, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error finding all resources: ${(error as Error).message}`;
       logger.error(errorMessage);
@@ -28,7 +28,7 @@ export const resourceService = {
       if (!resource) {
         return new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND);
       }
-      return new ServiceResponse<Resource>(ResponseStatus.Success, 'Resource found', resource, StatusCodes.OK);
+      return new ServiceResponse(ResponseStatus.Success, 'Resource found', resource, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error finding resource with id ${id}: ${(error as Error).message}`;
       logger.error(errorMessage);
@@ -36,7 +36,7 @@ export const resourceService = {
     }
   },
 
-  create: async (resource: Omit<Resource, 'id' | 'last_update'>): Promise<ServiceResponse<Resource | null>> => {
+  create: async (resource: NewResource): Promise<ServiceResponse<Resource | null>> => {
     try {
       if (resource.analyst_id) {
         const analystExists = await analystRepository.findAnalystById(resource.analyst_id);
@@ -59,16 +59,13 @@ export const resourceService = {
     }
   },
 
-  update: async (
-    id: number,
-    resource: Omit<Resource, 'id' | 'last_update'>
-  ): Promise<ServiceResponse<Resource | null>> => {
+  update: async (id: number, resource: ResourceUpdate): Promise<ServiceResponse<Resource | null>> => {
     try {
       const updatedResource = await resourceRepository.updateResource(id, resource);
       if (!updatedResource) {
         return new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND);
       }
-      return new ServiceResponse<Resource>(
+      return new ServiceResponse(
         ResponseStatus.Success,
         'Resource updated successfully',
         updatedResource,

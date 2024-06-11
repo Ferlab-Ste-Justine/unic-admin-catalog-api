@@ -1,4 +1,5 @@
 import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
+import { Generated, Insertable, Selectable, Updateable } from 'kysely';
 import { z } from 'zod';
 
 import { commonValidations } from '@/common/utils/commonValidation';
@@ -29,8 +30,6 @@ export const ResourceSchema = z.object({
   system_collection_starting_year: z.number().optional(),
 });
 
-export type Resource = z.infer<typeof ResourceSchema>;
-
 export const GetResourcesSchema = z.object({
   query: z.object({
     name: z.string().optional(),
@@ -53,3 +52,31 @@ export const UpdateResourceSchema = z.object({
 export const DeleteResourceSchema = z.object({
   params: z.object({ id: commonValidations.id }),
 });
+
+export interface ResourceTable {
+  id: Generated<number>;
+  last_update: Date;
+  code: string;
+  name: string;
+  title: string | null;
+  resource_type: 'warehouse' | 'research_project' | 'resource_project' | 'eqp' | 'source_system';
+  description_en: string;
+  description_fr: string;
+  principal_investigator: string | null;
+  erb_project_id: string | null;
+  project_creation_date: Date | null;
+  project_active: 'completed' | 'active' | null;
+  project_status: 'on hold' | 'in review' | 'in progress' | 'delivered' | null;
+  project_approved: boolean | null;
+  project_folder: string | null;
+  project_approval_date: Date | null;
+  project_completion_date: Date | null;
+  to_be_published: boolean;
+  system_database_type: string | null;
+  analyst_id: number | null;
+  system_collection_starting_year: number | null;
+}
+
+export type Resource = Selectable<ResourceTable>;
+export type NewResource = Insertable<ResourceTable>;
+export type ResourceUpdate = Updateable<ResourceTable>;

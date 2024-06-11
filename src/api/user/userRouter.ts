@@ -23,7 +23,7 @@ export const userRouter: Router = (() => {
     tags: ['User'],
     responses: createApiResponse(z.array(UserSchema), 'Success'),
   });
-  router.get('/', verifyToken, validateRequest(GetUserSchema), getAllUsers);
+  router.get('/', verifyToken, getAllUsers);
 
   userRegistry.registerPath({
     method: 'get',

@@ -1,57 +1,40 @@
-import pool from '../../db';
-import { Analyst } from './analystModel';
+import { Analyst, AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
+
+import { db } from '../../db';
 
 export const analystRepository = {
-  createAnalyst: async (analyst: Omit<Analyst, 'id'>): Promise<Analyst> => {
-    const { name } = analyst;
-    const query = `
-            INSERT INTO catalog.analyst (name, last_update)
-            VALUES ($1, NOW()) RETURNING id, last_update, name;
-        `;
-    const values = [name];
-    const res = await pool.query(query, values);
-    return res.rows[0];
+  createAnalyst: async (analyst: NewAnalyst): Promise<Analyst> => {
+    return await db.insertInto('catalog.analyst').values(analyst).returningAll().executeTakeFirstOrThrow();
   },
 
   findAnalystById: async (id: number): Promise<Analyst | null> => {
-    const query = `SELECT *
-                       FROM catalog.analyst
-                       WHERE id = $1`;
-    const res = await pool.query(query, [id]);
-    return res.rows[0] || null;
+    const result = await db.selectFrom('catalog.analyst').where('id', '=', id).selectAll().executeTakeFirst();
+
+    return result ?? null;
   },
 
   findAllAnalysts: async (name?: string): Promise<Analyst[]> => {
-    let query = `SELECT *
-                     FROM catalog.analyst`;
-    const values: any[] = [];
+    let query = db.selectFrom('catalog.analyst').selectAll();
 
     if (name) {
-      query += ` WHERE name ILIKE $1`;
-      values.push(`%${name}%`);
+      query = query.where('name', 'like', `%${name}%`);
     }
 
-    const res = await pool.query(query, values);
-    return res.rows;
+    return await query.execute();
   },
 
-  updateAnalyst: async (id: number, analyst: Omit<Analyst, 'id' | 'last_update'>): Promise<Analyst | null> => {
-    const { name } = analyst;
-    const query = `
-            UPDATE catalog.analyst
-            SET name        = $1,
-                last_update = NOW()
-            WHERE id = $2 RETURNING id, last_update, name;
-        `;
-    const values = [name, id];
-    const res = await pool.query(query, values);
-    return res.rows[0] || null;
+  updateAnalyst: async (id: number, analyst: AnalystUpdate): Promise<Analyst | null> => {
+    const result = await db
+      .updateTable('catalog.analyst')
+      .set(analyst)
+      .where('id', '=', id)
+      .returningAll()
+      .executeTakeFirst();
+
+    return result ?? null;
   },
 
   deleteAnalyst: async (id: number): Promise<void> => {
-    const query = `DELETE
-                       FROM catalog.analyst
-                       WHERE id = $1`;
-    await pool.query(query, [id]);
+    await db.deleteFrom('catalog.analyst').where('id', '=', id).execute();
   },
 };

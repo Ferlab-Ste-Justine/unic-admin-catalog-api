@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
-import { Analyst } from './analystModel';
+import { Analyst, AnalystUpdate, NewAnalyst } from './analystModel';
 import { analystRepository } from './analystRepository';
 
 export const analystService = {
@@ -37,7 +37,7 @@ export const analystService = {
     }
   },
 
-  create: async (analyst: Omit<Analyst, 'id' | 'last_update'>): Promise<ServiceResponse<Analyst | null>> => {
+  create: async (analyst: NewAnalyst): Promise<ServiceResponse<Analyst | null>> => {
     try {
       const newAnalyst = await analystRepository.createAnalyst(analyst);
       return new ServiceResponse(
@@ -53,10 +53,7 @@ export const analystService = {
     }
   },
 
-  update: async (
-    id: number,
-    analyst: Omit<Analyst, 'id' | 'last_update'>
-  ): Promise<ServiceResponse<Analyst | null>> => {
+  update: async (id: number, analyst: AnalystUpdate): Promise<ServiceResponse<Analyst | null>> => {
     try {
       const updatedAnalyst = await analystRepository.updateAnalyst(id, analyst);
       if (updatedAnalyst) {
