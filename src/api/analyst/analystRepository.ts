@@ -4,7 +4,14 @@ import { db } from '../../db';
 
 export const analystRepository = {
   createAnalyst: async (analyst: NewAnalyst): Promise<Analyst> => {
-    return await db.insertInto('catalog.analyst').values(analyst).returningAll().executeTakeFirstOrThrow();
+    return await db
+      .insertInto('catalog.analyst')
+      .values({
+        ...analyst,
+        last_update: new Date(),
+      })
+      .returningAll()
+      .executeTakeFirstOrThrow();
   },
 
   findAnalystById: async (id: number): Promise<Analyst | null> => {
@@ -26,7 +33,10 @@ export const analystRepository = {
   updateAnalyst: async (id: number, analyst: AnalystUpdate): Promise<Analyst | null> => {
     const result = await db
       .updateTable('catalog.analyst')
-      .set(analyst)
+      .set({
+        ...analyst,
+        last_update: new Date(),
+      })
       .where('id', '=', id)
       .returningAll()
       .executeTakeFirst();

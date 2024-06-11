@@ -7,6 +7,7 @@ import { analystRouter } from '@/api/analyst/analystRouter';
 import { healthCheckRouter } from '@/api/healthCheck/healthCheckRouter';
 import { resourceRouter } from '@/api/resource/resourceRouter';
 import { userRouter } from '@/api/user/userRouter';
+import { valueSetRouter } from '@/api/valueSet/valueSetRouter';
 import { openAPIRouter } from '@/api-docs/openAPIRouter';
 import errorHandler from '@/common/middleware/errorHandler';
 import rateLimiter from '@/common/middleware/rateLimiter';
@@ -33,6 +34,7 @@ app.use('/health-check', healthCheckRouter);
 app.use('/users', userRouter);
 app.use('/analysts', analystRouter);
 app.use('/resources', resourceRouter);
+app.use('/value-sets', valueSetRouter);
 
 // Swagger UI
 app.use(openAPIRouter);
