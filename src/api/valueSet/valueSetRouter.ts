@@ -26,7 +26,7 @@ export const valueSetRouter: Router = (() => {
 
   valueSetRegistry.registerPath({
     method: 'get',
-    path: '/valueSets',
+    path: '/value-sets',
     tags: ['Value Set'],
     request: {
       query: GetValueSetsSchema.shape.query,
@@ -37,7 +37,7 @@ export const valueSetRouter: Router = (() => {
 
   valueSetRegistry.registerPath({
     method: 'get',
-    path: '/valueSets/{id}',
+    path: '/value-sets/{id}',
     tags: ['Value Set'],
     request: {
       params: GetValueSetSchema.shape.params,
@@ -48,7 +48,7 @@ export const valueSetRouter: Router = (() => {
 
   valueSetRegistry.registerPath({
     method: 'post',
-    path: '/valueSets',
+    path: '/value-sets',
     tags: ['Value Set'],
     request: {
       body: {
@@ -65,7 +65,7 @@ export const valueSetRouter: Router = (() => {
 
   valueSetRegistry.registerPath({
     method: 'put',
-    path: '/valueSets/{id}',
+    path: '/value-sets/{id}',
     tags: ['Value Set'],
     request: {
       params: UpdateValueSetSchema.shape.params,
@@ -83,7 +83,7 @@ export const valueSetRouter: Router = (() => {
 
   valueSetRegistry.registerPath({
     method: 'delete',
-    path: '/valueSets/{id}',
+    path: '/value-sets/{id}',
     tags: ['Value Set'],
     request: {
       params: DeleteValueSetSchema.shape.params,

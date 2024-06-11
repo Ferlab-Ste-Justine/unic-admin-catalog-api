@@ -61,6 +61,13 @@ export const resourceService = {
 
   update: async (id: number, resource: ResourceUpdate): Promise<ServiceResponse<Resource | null>> => {
     try {
+      if (resource.analyst_id) {
+        const analystExists = await analystRepository.findAnalystById(resource.analyst_id);
+        if (!analystExists) {
+          return new ServiceResponse(ResponseStatus.Failed, 'Analyst ID does not exist', null, StatusCodes.BAD_REQUEST);
+        }
+      }
+
       const updatedResource = await resourceRepository.updateResource(id, resource);
       if (!updatedResource) {
         return new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND);

@@ -5,6 +5,7 @@ import { pino } from 'pino';
 
 import { analystRouter } from '@/api/analyst/analystRouter';
 import { dictionaryRouter } from '@/api/dictionary/dictionaryRouter';
+import { dictTableRouter } from '@/api/dictTable/dictTableRouter';
 import { healthCheckRouter } from '@/api/healthCheck/healthCheckRouter';
 import { resourceRouter } from '@/api/resource/resourceRouter';
 import { userRouter } from '@/api/user/userRouter';
@@ -37,6 +38,7 @@ app.use('/analysts', analystRouter);
 app.use('/resources', resourceRouter);
 app.use('/value-sets', valueSetRouter);
 app.use('/dictionaries', dictionaryRouter);
+app.use('/dict-tables', dictTableRouter);
 
 // Swagger UI
 app.use(openAPIRouter);

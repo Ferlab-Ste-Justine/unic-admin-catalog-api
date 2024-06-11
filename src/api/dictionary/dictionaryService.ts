@@ -39,15 +39,16 @@ export const dictionaryService = {
 
   create: async (dictionary: NewDictionary): Promise<ServiceResponse<Dictionary | null>> => {
     try {
-      // Check if the resource linked to resource_id exists
-      const resourceExists = await resourceRepository.findResourceById(dictionary.resource_id);
-      if (!resourceExists) {
-        return new ServiceResponse(
-          ResponseStatus.Failed,
-          `Resource with ID ${dictionary.resource_id} does not exist`,
-          null,
-          StatusCodes.BAD_REQUEST
-        );
+      if (dictionary.resource_id) {
+        const resourceExists = await resourceRepository.findResourceById(dictionary.resource_id);
+        if (!resourceExists) {
+          return new ServiceResponse(
+            ResponseStatus.Failed,
+            `Resource with ID ${dictionary.resource_id} does not exist`,
+            null,
+            StatusCodes.BAD_REQUEST
+          );
+        }
       }
 
       const newDictionary = await dictionaryRepository.createDictionary(dictionary);
@@ -66,6 +67,18 @@ export const dictionaryService = {
 
   update: async (id: number, dictionary: DictionaryUpdate): Promise<ServiceResponse<Dictionary | null>> => {
     try {
+      if (dictionary.resource_id) {
+        const resourceExists = await resourceRepository.findResourceById(dictionary.resource_id);
+        if (!resourceExists) {
+          return new ServiceResponse(
+            ResponseStatus.Failed,
+            `Resource with ID ${dictionary.resource_id} does not exist`,
+            null,
+            StatusCodes.BAD_REQUEST
+          );
+        }
+      }
+
       const updatedDictionary = await dictionaryRepository.updateDictionary(id, dictionary);
       if (updatedDictionary) {
         return new ServiceResponse(

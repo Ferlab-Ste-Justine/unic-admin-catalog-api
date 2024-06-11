@@ -2,6 +2,7 @@ import { OpenApiGeneratorV3, OpenAPIRegistry } from '@asteasolutions/zod-to-open
 
 import { analystRegistry } from '@/api/analyst/analystRouter';
 import { dictionaryRegistry } from '@/api/dictionary/dictionaryRouter';
+import { dictTableRegistry } from '@/api/dictTable/dictTableRouter';
 import { healthCheckRegistry } from '@/api/healthCheck/healthCheckRouter';
 import { resourceRegistry } from '@/api/resource/resourceRouter';
 import { userRegistry } from '@/api/user/userRouter';
@@ -15,6 +16,7 @@ export function generateOpenAPIDocument() {
     resourceRegistry,
     valueSetRegistry,
     dictionaryRegistry,
+    dictTableRegistry,
   ]);
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
