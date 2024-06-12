@@ -1,4 +1,5 @@
-import { db } from '../../db';
+import { db } from '@/db';
+
 import { Dictionary, DictionaryUpdate, NewDictionary } from './dictionaryModel';
 
 export const dictionaryRepository = {

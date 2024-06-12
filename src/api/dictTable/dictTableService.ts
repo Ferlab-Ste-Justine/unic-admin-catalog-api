@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import { dictionaryRepository } from '@/api/dictionary/dictionaryRepository';
+import { validateDictionaryId } from '@/api/helpers';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
@@ -10,16 +10,9 @@ import { dictTableRepository } from './dictTableRepository';
 export const dictTableService = {
   create: async (dictTable: NewDictTable): Promise<ServiceResponse<DictTable | null>> => {
     try {
-      if (dictTable.dictionary_id) {
-        const analystExists = await dictionaryRepository.findDictionaryById(dictTable.dictionary_id);
-        if (!analystExists) {
-          return new ServiceResponse(
-            ResponseStatus.Failed,
-            'Dictionary ID does not exist',
-            null,
-            StatusCodes.BAD_REQUEST
-          );
-        }
+      const dictionaryValidation = await validateDictionaryId(dictTable.dictionary_id);
+      if (!dictionaryValidation.success) {
+        return dictionaryValidation;
       }
 
       const newDictTable = await dictTableRepository.createDictTable(dictTable);
@@ -68,17 +61,11 @@ export const dictTableService = {
 
   update: async (id: number, dictTable: DictTableUpdate): Promise<ServiceResponse<DictTable | null>> => {
     try {
-      if (dictTable.dictionary_id) {
-        const analystExists = await dictionaryRepository.findDictionaryById(dictTable.dictionary_id);
-        if (!analystExists) {
-          return new ServiceResponse(
-            ResponseStatus.Failed,
-            'Dictionary ID does not exist',
-            null,
-            StatusCodes.BAD_REQUEST
-          );
-        }
+      const dictionaryValidation = await validateDictionaryId(dictTable.dictionary_id);
+      if (!dictionaryValidation.success) {
+        return dictionaryValidation;
       }
+
       const updatedDictTable = await dictTableRepository.updateDictTable(id, dictTable);
       if (updatedDictTable) {
         return new ServiceResponse(

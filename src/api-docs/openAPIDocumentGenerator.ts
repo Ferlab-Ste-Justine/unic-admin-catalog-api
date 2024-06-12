@@ -7,6 +7,7 @@ import { healthCheckRegistry } from '@/api/healthCheck/healthCheckRouter';
 import { resourceRegistry } from '@/api/resource/resourceRouter';
 import { userRegistry } from '@/api/user/userRouter';
 import { valueSetRegistry } from '@/api/valueSet/valueSetRouter';
+import { variableRegistry } from '@/api/variable/variableRouter';
 
 export function generateOpenAPIDocument() {
   const registry = new OpenAPIRegistry([
@@ -17,6 +18,7 @@ export function generateOpenAPIDocument() {
     valueSetRegistry,
     dictionaryRegistry,
     dictTableRegistry,
+    variableRegistry,
   ]);
   const generator = new OpenApiGeneratorV3(registry.definitions);
 

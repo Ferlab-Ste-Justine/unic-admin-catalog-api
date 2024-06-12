@@ -10,6 +10,7 @@ import { healthCheckRouter } from '@/api/healthCheck/healthCheckRouter';
 import { resourceRouter } from '@/api/resource/resourceRouter';
 import { userRouter } from '@/api/user/userRouter';
 import { valueSetRouter } from '@/api/valueSet/valueSetRouter';
+import { variableRouter } from '@/api/variable/variableRouter';
 import { openAPIRouter } from '@/api-docs/openAPIRouter';
 import errorHandler from '@/common/middleware/errorHandler';
 import rateLimiter from '@/common/middleware/rateLimiter';
@@ -39,6 +40,7 @@ app.use('/resources', resourceRouter);
 app.use('/value-sets', valueSetRouter);
 app.use('/dictionaries', dictionaryRouter);
 app.use('/dict-tables', dictTableRouter);
+app.use('/variables', variableRouter);
 
 // Swagger UI
 app.use(openAPIRouter);

@@ -1,6 +1,5 @@
 import { Analyst, AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
-
-import { db } from '../../db';
+import { db } from '@/db';
 
 export const analystRepository = {
   createAnalyst: async (analyst: NewAnalyst): Promise<Analyst> => {

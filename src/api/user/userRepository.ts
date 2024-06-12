@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 
-import { db } from '../../db';
+import { db } from '@/db';
+
 import { NewUser, PublicUser, User } from './userModel';
 
 export const userRepository = {

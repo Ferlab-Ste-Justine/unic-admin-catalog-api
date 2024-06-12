@@ -1,4 +1,5 @@
-import { db } from '../../db';
+import { db } from '@/db';
+
 import { DictTable, DictTableUpdate, NewDictTable } from './dictTableModel';
 
 export const dictTableRepository = {

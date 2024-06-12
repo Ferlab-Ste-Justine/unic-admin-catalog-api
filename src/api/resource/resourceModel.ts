@@ -73,7 +73,7 @@ export interface ResourceTable {
   project_completion_date: Date | null;
   to_be_published: boolean;
   system_database_type: string | null;
-  analyst_id: number | null;
+  analyst_id?: number;
   system_collection_starting_year: number | null;
 }
 

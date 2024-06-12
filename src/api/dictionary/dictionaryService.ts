@@ -1,9 +1,9 @@
 import { StatusCodes } from 'http-status-codes';
 
+import { validateResourceId } from '@/api/helpers';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
-import { resourceRepository } from '../resource/resourceRepository';
 import { Dictionary, DictionaryUpdate, NewDictionary } from './dictionaryModel';
 import { dictionaryRepository } from './dictionaryRepository';
 
@@ -39,16 +39,9 @@ export const dictionaryService = {
 
   create: async (dictionary: NewDictionary): Promise<ServiceResponse<Dictionary | null>> => {
     try {
-      if (dictionary.resource_id) {
-        const resourceExists = await resourceRepository.findResourceById(dictionary.resource_id);
-        if (!resourceExists) {
-          return new ServiceResponse(
-            ResponseStatus.Failed,
-            `Resource with ID ${dictionary.resource_id} does not exist`,
-            null,
-            StatusCodes.BAD_REQUEST
-          );
-        }
+      const resourceValidation = await validateResourceId(dictionary.resource_id);
+      if (!resourceValidation.success) {
+        return resourceValidation;
       }
 
       const newDictionary = await dictionaryRepository.createDictionary(dictionary);
@@ -67,16 +60,9 @@ export const dictionaryService = {
 
   update: async (id: number, dictionary: DictionaryUpdate): Promise<ServiceResponse<Dictionary | null>> => {
     try {
-      if (dictionary.resource_id) {
-        const resourceExists = await resourceRepository.findResourceById(dictionary.resource_id);
-        if (!resourceExists) {
-          return new ServiceResponse(
-            ResponseStatus.Failed,
-            `Resource with ID ${dictionary.resource_id} does not exist`,
-            null,
-            StatusCodes.BAD_REQUEST
-          );
-        }
+      const resourceValidation = await validateResourceId(dictionary.resource_id);
+      if (!resourceValidation.success) {
+        return resourceValidation;
       }
 
       const updatedDictionary = await dictionaryRepository.updateDictionary(id, dictionary);

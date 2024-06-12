@@ -1,6 +1,6 @@
 import { StatusCodes } from 'http-status-codes';
 
-import { analystRepository } from '@/api/analyst/analystRepository';
+import { validateAnalystId } from '@/api/helpers';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
@@ -38,11 +38,9 @@ export const resourceService = {
 
   create: async (resource: NewResource): Promise<ServiceResponse<Resource | null>> => {
     try {
-      if (resource.analyst_id) {
-        const analystExists = await analystRepository.findAnalystById(resource.analyst_id);
-        if (!analystExists) {
-          return new ServiceResponse(ResponseStatus.Failed, 'Analyst ID does not exist', null, StatusCodes.BAD_REQUEST);
-        }
+      const analystValidation = await validateAnalystId(resource.analyst_id);
+      if (!analystValidation.success) {
+        return analystValidation;
       }
 
       const createdResource = await resourceRepository.createResource(resource);
@@ -61,11 +59,9 @@ export const resourceService = {
 
   update: async (id: number, resource: ResourceUpdate): Promise<ServiceResponse<Resource | null>> => {
     try {
-      if (resource.analyst_id) {
-        const analystExists = await analystRepository.findAnalystById(resource.analyst_id);
-        if (!analystExists) {
-          return new ServiceResponse(ResponseStatus.Failed, 'Analyst ID does not exist', null, StatusCodes.BAD_REQUEST);
-        }
+      const analystValidation = await validateAnalystId(resource.analyst_id);
+      if (!analystValidation.success) {
+        return analystValidation;
       }
 
       const updatedResource = await resourceRepository.updateResource(id, resource);

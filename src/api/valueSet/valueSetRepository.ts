@@ -1,6 +1,5 @@
 import { NewValueSet, ValueSet, ValueSetUpdate } from '@/api/valueSet/valueSetModel';
-
-import { db } from '../../db';
+import { db } from '@/db';
 
 export const valueSetRepository = {
   createValueSet: async (valueSet: NewValueSet): Promise<ValueSet> => {

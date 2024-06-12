@@ -1,4 +1,5 @@
-import { db } from '../../db';
+import { db } from '@/db';
+
 import { NewResource, Resource, ResourceUpdate } from './resourceModel';
 
 export const resourceRepository = {
