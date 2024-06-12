@@ -1,6 +1,7 @@
 import { AnalystTable } from '@/api/analyst/analystModel';
 import { DictionaryTable } from '@/api/dictionary/dictionaryModel';
 import { DictTableTable } from '@/api/dictTable/dictTableModel';
+import { MappingTable } from '@/api/mapping/mappingModel';
 import { ResourceTable } from '@/api/resource/resourceModel';
 import { UserTable } from '@/api/user/userModel';
 import { ValueSetTable } from '@/api/valueSet/valueSetModel';
@@ -16,4 +17,5 @@ export interface Database {
   'catalog.dict_table': DictTableTable;
   'catalog.variable': VariableTable;
   'catalog.value_set_code': ValueSetCodeTable;
+  'catalog.mapping': MappingTable;
 }

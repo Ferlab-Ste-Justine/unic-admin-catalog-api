@@ -7,6 +7,7 @@ import { analystRouter } from '@/api/analyst/analystRouter';
 import { dictionaryRouter } from '@/api/dictionary/dictionaryRouter';
 import { dictTableRouter } from '@/api/dictTable/dictTableRouter';
 import { healthCheckRouter } from '@/api/healthCheck/healthCheckRouter';
+import { mappingRouter } from '@/api/mapping/mappingRouter';
 import { resourceRouter } from '@/api/resource/resourceRouter';
 import { userRouter } from '@/api/user/userRouter';
 import { valueSetRouter } from '@/api/valueSet/valueSetRouter';
@@ -41,6 +42,7 @@ app.use('/dictionaries', dictionaryRouter);
 app.use('/dict-tables', dictTableRouter);
 app.use('/variables', variableRouter);
 app.use('/value-set-codes', valueSetCodeRouter);
+app.use('/mappings', mappingRouter);
 
 // Swagger UI
 app.use(openAPIRouter);

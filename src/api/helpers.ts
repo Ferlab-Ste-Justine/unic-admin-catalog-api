@@ -5,6 +5,7 @@ import { dictionaryRepository } from '@/api/dictionary/dictionaryRepository';
 import { dictTableRepository } from '@/api/dictTable/dictTableRepository';
 import { resourceRepository } from '@/api/resource/resourceRepository';
 import { valueSetRepository } from '@/api/valueSet/valueSetRepository';
+import { valueSetCodeRepository } from '@/api/valueSetCode/valueSetCodeRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
 export const validateValueSetId = async (value_set_id?: number): Promise<ServiceResponse<null>> => {
@@ -20,6 +21,21 @@ export const validateValueSetId = async (value_set_id?: number): Promise<Service
     }
   }
   return new ServiceResponse(ResponseStatus.Success, 'Value Set ID is valid', null, StatusCodes.OK);
+};
+
+export const validateValueSetCodeId = async (value_set_code_id?: number): Promise<ServiceResponse<null>> => {
+  if (value_set_code_id) {
+    const valueSetCodeExists = await valueSetCodeRepository.findValueSetCodeById(value_set_code_id);
+    if (!valueSetCodeExists) {
+      return new ServiceResponse(
+        ResponseStatus.Failed,
+        `Value Set Code with ID ${value_set_code_id} does not exist`,
+        null,
+        StatusCodes.BAD_REQUEST
+      );
+    }
+  }
+  return new ServiceResponse(ResponseStatus.Success, 'Value Set Code ID is valid', null, StatusCodes.OK);
 };
 
 export const validateTableId = async (table_id?: number): Promise<ServiceResponse<null>> => {

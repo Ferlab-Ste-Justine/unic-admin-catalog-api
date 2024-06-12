@@ -4,6 +4,7 @@ import { analystRegistry } from '@/api/analyst/analystRouter';
 import { dictionaryRegistry } from '@/api/dictionary/dictionaryRouter';
 import { dictTableRegistry } from '@/api/dictTable/dictTableRouter';
 import { healthCheckRegistry } from '@/api/healthCheck/healthCheckRouter';
+import { mappingRegistry } from '@/api/mapping/mappingRouter';
 import { resourceRegistry } from '@/api/resource/resourceRouter';
 import { userRegistry } from '@/api/user/userRouter';
 import { valueSetRegistry } from '@/api/valueSet/valueSetRouter';
@@ -21,6 +22,7 @@ export function generateOpenAPIDocument() {
     dictTableRegistry,
     variableRegistry,
     valueSetCodeRegistry,
+    mappingRegistry,
   ]);
   const generator = new OpenApiGeneratorV3(registry.definitions);
 
