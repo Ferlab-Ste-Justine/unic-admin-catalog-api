@@ -14,7 +14,6 @@ import { valueSetCodeRouter } from '@/api/valueSetCode/valueSetCodeRouter';
 import { variableRouter } from '@/api/variable/variableRouter';
 import { openAPIRouter } from '@/api-docs/openAPIRouter';
 import errorHandler from '@/common/middleware/errorHandler';
-import rateLimiter from '@/common/middleware/rateLimiter';
 import requestLogger from '@/common/middleware/requestLogger';
 import { env } from '@/common/utils/envConfig';
 
@@ -28,7 +27,6 @@ app.set('trust proxy', true);
 // Middlewares
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(helmet());
-app.use(rateLimiter);
 
 // Request logging
 app.use(requestLogger);
