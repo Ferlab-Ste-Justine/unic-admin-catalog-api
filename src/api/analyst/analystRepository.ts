@@ -2,7 +2,29 @@ import { Analyst, AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
 import { db } from '@/db';
 
 export const analystRepository = {
-  createAnalyst: async (analyst: NewAnalyst): Promise<Analyst> => {
+  findById: async (id: number): Promise<Analyst | null> => {
+    const result = await db.selectFrom('catalog.analyst').where('id', '=', id).selectAll().executeTakeFirst();
+
+    return result ?? null;
+  },
+
+  findByName: async (name: string): Promise<Analyst | null> => {
+    const result = await db.selectFrom('catalog.analyst').where('name', '=', name).selectAll().executeTakeFirst();
+
+    return result ?? null;
+  },
+
+  findAll: async (name?: string): Promise<Analyst[]> => {
+    let query = db.selectFrom('catalog.analyst').selectAll();
+
+    if (name) {
+      query = query.where('name', 'like', `%${name}%`);
+    }
+
+    return await query.execute();
+  },
+
+  create: async (analyst: NewAnalyst): Promise<Analyst> => {
     return await db
       .insertInto('catalog.analyst')
       .values({
@@ -13,23 +35,7 @@ export const analystRepository = {
       .executeTakeFirstOrThrow();
   },
 
-  findAnalystById: async (id: number): Promise<Analyst | null> => {
-    const result = await db.selectFrom('catalog.analyst').where('id', '=', id).selectAll().executeTakeFirst();
-
-    return result ?? null;
-  },
-
-  findAllAnalysts: async (name?: string): Promise<Analyst[]> => {
-    let query = db.selectFrom('catalog.analyst').selectAll();
-
-    if (name) {
-      query = query.where('name', 'like', `%${name}%`);
-    }
-
-    return await query.execute();
-  },
-
-  updateAnalyst: async (id: number, analyst: AnalystUpdate): Promise<Analyst | null> => {
+  update: async (id: number, analyst: AnalystUpdate): Promise<Analyst | null> => {
     const result = await db
       .updateTable('catalog.analyst')
       .set({
@@ -43,7 +49,7 @@ export const analystRepository = {
     return result ?? null;
   },
 
-  deleteAnalyst: async (id: number): Promise<void> => {
+  delete: async (id: number): Promise<void> => {
     await db.deleteFrom('catalog.analyst').where('id', '=', id).execute();
   },
 };

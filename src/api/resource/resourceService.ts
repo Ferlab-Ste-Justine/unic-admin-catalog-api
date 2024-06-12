@@ -10,7 +10,7 @@ import { resourceRepository } from './resourceRepository';
 export const resourceService = {
   findAll: async (name?: string): Promise<ServiceResponse<Resource[] | null>> => {
     try {
-      const resources = await resourceRepository.findAllResources(name);
+      const resources = await resourceRepository.findAll(name);
       if (!resources.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No resources found', null, StatusCodes.NOT_FOUND);
       }
@@ -24,7 +24,7 @@ export const resourceService = {
 
   findById: async (id: number): Promise<ServiceResponse<Resource | null>> => {
     try {
-      const resource = await resourceRepository.findResourceById(id);
+      const resource = await resourceRepository.findById(id);
       if (!resource) {
         return new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND);
       }
@@ -43,7 +43,12 @@ export const resourceService = {
         return analystValidation;
       }
 
-      const createdResource = await resourceRepository.createResource(resource);
+      const uniquenessCheck = await handleUniquenessChecks(resource);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const createdResource = await resourceRepository.create(resource);
       return new ServiceResponse(
         ResponseStatus.Success,
         'Resource created successfully',
@@ -64,7 +69,12 @@ export const resourceService = {
         return analystValidation;
       }
 
-      const updatedResource = await resourceRepository.updateResource(id, resource);
+      const uniquenessCheck = await handleUniquenessChecks(resource);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const updatedResource = await resourceRepository.update(id, resource);
       if (!updatedResource) {
         return new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND);
       }
@@ -83,7 +93,7 @@ export const resourceService = {
 
   delete: async (id: number): Promise<ServiceResponse> => {
     try {
-      await resourceRepository.deleteResource(id);
+      await resourceRepository.delete(id);
       return new ServiceResponse(ResponseStatus.Success, 'Resource deleted successfully', null, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error deleting resource with id ${id}: ${(error as Error).message}`;
@@ -91,4 +101,23 @@ export const resourceService = {
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
+};
+
+const handleUniquenessChecks = async (
+  resource: NewResource | ResourceUpdate,
+  id?: number
+): Promise<ServiceResponse<null>> => {
+  if (resource.code) {
+    const existingByCode = await resourceRepository.findByCode(resource.code);
+    if (existingByCode && existingByCode.id !== id) {
+      return new ServiceResponse(
+        ResponseStatus.Failed,
+        `A Resource with code ${resource.code} already exists.`,
+        null,
+        StatusCodes.CONFLICT
+      );
+    }
+  }
+
+  return new ServiceResponse(ResponseStatus.Success, 'Uniqueness checks passed', null, StatusCodes.OK);
 };

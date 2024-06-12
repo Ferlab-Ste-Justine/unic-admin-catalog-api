@@ -7,10 +7,10 @@ import { commonValidations } from '@/common/utils/commonValidation';
 extendZodWithOpenApi(z);
 
 export const MappingSchema = z.object({
-  id: z.number().optional(),
-  last_update: z.date().optional(),
+  id: commonValidations.id,
+  last_update: z.date(),
   value_set_code_id: z.number(),
-  original_value: z.string(),
+  original_value: z.string().max(255, 'original_value can have a maximum of 255 characters'),
 });
 
 export const GetMappingSchema = z.object({

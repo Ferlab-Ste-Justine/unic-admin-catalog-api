@@ -7,12 +7,12 @@ import { commonValidations } from '@/common/utils/commonValidation';
 extendZodWithOpenApi(z);
 
 export const ValueSetSchema = z.object({
-  id: z.number().optional(),
+  id: commonValidations.id,
   last_update: z.date(),
-  name: z.string(),
-  description_en: z.string().max(1000).nullable(),
-  description_fr: z.string().max(1000).nullable(),
-  url: z.string().max(255).nullable(),
+  name: z.string().max(255, 'name can have a maximum of 255 characters'),
+  description_en: z.string().max(1000, 'description_en can have a maximum of 1000 characters').nullish(),
+  description_fr: z.string().max(1000, 'description_fr can have a maximum of 1000 characters').nullish(),
+  url: z.string().max(255, 'url can have a maximum of 255 characters').nullish(),
 });
 
 export const GetValueSetsSchema = z.object({
@@ -26,22 +26,12 @@ export const GetValueSetSchema = z.object({
 });
 
 export const CreateValueSetSchema = z.object({
-  body: z.object({
-    name: z.string(),
-    description_en: z.string().max(1000).nullable(),
-    description_fr: z.string().max(1000).nullable(),
-    url: z.string().max(255).nullable(),
-  }),
+  body: ValueSetSchema.omit({ id: true, last_update: true }),
 });
 
 export const UpdateValueSetSchema = z.object({
   params: z.object({ id: commonValidations.id }),
-  body: z.object({
-    name: z.string().optional(),
-    description_en: z.string().max(1000).nullable().optional(),
-    description_fr: z.string().max(1000).nullable().optional(),
-    url: z.string().max(255).nullable().optional(),
-  }),
+  body: ValueSetSchema.omit({ id: true, last_update: true }),
 });
 
 export const DeleteValueSetSchema = z.object({

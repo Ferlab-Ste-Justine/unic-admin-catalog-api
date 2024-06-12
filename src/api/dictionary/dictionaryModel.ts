@@ -7,7 +7,7 @@ import { commonValidations } from '@/common/utils/commonValidation';
 extendZodWithOpenApi(z);
 
 export const DictionarySchema = z.object({
-  id: z.number().optional(),
+  id: commonValidations.id,
   resource_id: z.number(),
   last_update: z.date(),
   current_version: z.number(),

@@ -9,7 +9,7 @@ import { analystRepository } from './analystRepository';
 export const analystService = {
   findAll: async (name?: string): Promise<ServiceResponse<Analyst[] | null>> => {
     try {
-      const analysts = await analystRepository.findAllAnalysts(name);
+      const analysts = await analystRepository.findAll(name);
       if (!analysts.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No analysts found', null, StatusCodes.NOT_FOUND);
       }
@@ -24,7 +24,7 @@ export const analystService = {
 
   findById: async (id: number): Promise<ServiceResponse<Analyst | null>> => {
     try {
-      const analyst = await analystRepository.findAnalystById(id);
+      const analyst = await analystRepository.findById(id);
       if (analyst) {
         return new ServiceResponse(ResponseStatus.Success, 'Analyst found', analyst, StatusCodes.OK);
       } else {
@@ -39,7 +39,12 @@ export const analystService = {
 
   create: async (analyst: NewAnalyst): Promise<ServiceResponse<Analyst | null>> => {
     try {
-      const newAnalyst = await analystRepository.createAnalyst(analyst);
+      const uniquenessCheck = await handleUniquenessChecks(analyst);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const newAnalyst = await analystRepository.create(analyst);
       return new ServiceResponse(
         ResponseStatus.Success,
         'Analyst created successfully',
@@ -55,7 +60,12 @@ export const analystService = {
 
   update: async (id: number, analyst: AnalystUpdate): Promise<ServiceResponse<Analyst | null>> => {
     try {
-      const updatedAnalyst = await analystRepository.updateAnalyst(id, analyst);
+      const uniquenessCheck = await handleUniquenessChecks(analyst);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const updatedAnalyst = await analystRepository.update(id, analyst);
       if (updatedAnalyst) {
         return new ServiceResponse(
           ResponseStatus.Success,
@@ -75,7 +85,7 @@ export const analystService = {
 
   delete: async (id: number): Promise<ServiceResponse> => {
     try {
-      await analystRepository.deleteAnalyst(id);
+      await analystRepository.delete(id);
       return new ServiceResponse(ResponseStatus.Success, 'Analyst deleted successfully', null, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error deleting analyst with id ${id}: ${(error as Error).message}`;
@@ -83,4 +93,23 @@ export const analystService = {
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
+};
+
+const handleUniquenessChecks = async (
+  analyst: NewAnalyst | AnalystUpdate,
+  id?: number
+): Promise<ServiceResponse<null>> => {
+  if (analyst.name) {
+    const existingByName = await analystRepository.findByName(analyst.name);
+    if (existingByName && existingByName.id !== id) {
+      return new ServiceResponse(
+        ResponseStatus.Failed,
+        `An Analyst with name ${analyst.name} already exists.`,
+        null,
+        StatusCodes.CONFLICT
+      );
+    }
+  }
+
+  return new ServiceResponse(ResponseStatus.Success, 'Uniqueness checks passed', null, StatusCodes.OK);
 };

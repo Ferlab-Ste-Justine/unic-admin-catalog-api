@@ -10,7 +10,7 @@ import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse
 
 export const validateValueSetId = async (value_set_id?: number): Promise<ServiceResponse<null>> => {
   if (value_set_id) {
-    const valueSetExists = await valueSetRepository.findValueSetById(value_set_id);
+    const valueSetExists = await valueSetRepository.findById(value_set_id);
     if (!valueSetExists) {
       return new ServiceResponse(
         ResponseStatus.Failed,
@@ -25,7 +25,7 @@ export const validateValueSetId = async (value_set_id?: number): Promise<Service
 
 export const validateValueSetCodeId = async (value_set_code_id?: number): Promise<ServiceResponse<null>> => {
   if (value_set_code_id) {
-    const valueSetCodeExists = await valueSetCodeRepository.findValueSetCodeById(value_set_code_id);
+    const valueSetCodeExists = await valueSetCodeRepository.findById(value_set_code_id);
     if (!valueSetCodeExists) {
       return new ServiceResponse(
         ResponseStatus.Failed,
@@ -38,9 +38,9 @@ export const validateValueSetCodeId = async (value_set_code_id?: number): Promis
   return new ServiceResponse(ResponseStatus.Success, 'Value Set Code ID is valid', null, StatusCodes.OK);
 };
 
-export const validateTableId = async (table_id?: number): Promise<ServiceResponse<null>> => {
+export const validateDictTableId = async (table_id?: number): Promise<ServiceResponse<null>> => {
   if (table_id) {
-    const dictTableExists = await dictTableRepository.findDictTableById(table_id);
+    const dictTableExists = await dictTableRepository.findById(table_id);
     if (!dictTableExists) {
       return new ServiceResponse(
         ResponseStatus.Failed,
@@ -55,7 +55,7 @@ export const validateTableId = async (table_id?: number): Promise<ServiceRespons
 
 export const validateResourceId = async (resource_id?: number): Promise<ServiceResponse<null>> => {
   if (resource_id) {
-    const resourceExists = await resourceRepository.findResourceById(resource_id);
+    const resourceExists = await resourceRepository.findById(resource_id);
     if (!resourceExists) {
       return new ServiceResponse(
         ResponseStatus.Failed,
@@ -70,7 +70,7 @@ export const validateResourceId = async (resource_id?: number): Promise<ServiceR
 
 export const validateAnalystId = async (analyst_id?: number): Promise<ServiceResponse<null>> => {
   if (analyst_id) {
-    const analystExists = await analystRepository.findAnalystById(analyst_id);
+    const analystExists = await analystRepository.findById(analyst_id);
     if (!analystExists) {
       return new ServiceResponse(
         ResponseStatus.Failed,
@@ -85,7 +85,7 @@ export const validateAnalystId = async (analyst_id?: number): Promise<ServiceRes
 
 export const validateDictionaryId = async (dictionary_id?: number): Promise<ServiceResponse<null>> => {
   if (dictionary_id) {
-    const dictionaryExists = await dictionaryRepository.findDictionaryById(dictionary_id);
+    const dictionaryExists = await dictionaryRepository.findById(dictionary_id);
     if (!dictionaryExists) {
       return new ServiceResponse(
         ResponseStatus.Failed,

@@ -7,12 +7,12 @@ import { commonValidations } from '@/common/utils/commonValidation';
 extendZodWithOpenApi(z);
 
 export const ValueSetCodeSchema = z.object({
-  id: z.number().optional(),
-  value_set_id: z.number().optional(),
-  last_update: z.date().optional(),
-  code: z.string(),
-  label_fr: z.string(),
-  label_en: z.string(),
+  id: commonValidations.id,
+  value_set_id: z.number(),
+  last_update: z.date(),
+  code: z.string().max(50, 'code can have a maximum of 50'),
+  label_fr: z.string().max(255, 'label_fr can have a maximum of 255 characters'),
+  label_en: z.string().max(255, 'label_en can have a maximum of 255 characters'),
 });
 
 export const GetValueSetCodeSchema = z.object({

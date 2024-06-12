@@ -2,7 +2,7 @@ import { NewValueSet, ValueSet, ValueSetUpdate } from '@/api/valueSet/valueSetMo
 import { db } from '@/db';
 
 export const valueSetRepository = {
-  createValueSet: async (valueSet: NewValueSet): Promise<ValueSet> => {
+  create: async (valueSet: NewValueSet): Promise<ValueSet> => {
     return await db
       .insertInto('catalog.value_set')
       .values({
@@ -13,13 +13,19 @@ export const valueSetRepository = {
       .executeTakeFirstOrThrow();
   },
 
-  findValueSetById: async (id: number): Promise<ValueSet | null> => {
+  findById: async (id: number): Promise<ValueSet | null> => {
     const result = await db.selectFrom('catalog.value_set').where('id', '=', id).selectAll().executeTakeFirst();
 
     return result ?? null;
   },
 
-  findAllValueSets: async (name?: string): Promise<ValueSet[]> => {
+  findByName: async (name: string): Promise<ValueSet | null> => {
+    const result = await db.selectFrom('catalog.value_set').where('name', '=', name).selectAll().executeTakeFirst();
+
+    return result ?? null;
+  },
+
+  findAll: async (name?: string): Promise<ValueSet[]> => {
     let query = db.selectFrom('catalog.value_set').selectAll();
 
     if (name) {
@@ -29,7 +35,7 @@ export const valueSetRepository = {
     return await query.execute();
   },
 
-  updateValueSet: async (id: number, valueSet: ValueSetUpdate): Promise<ValueSet | null> => {
+  update: async (id: number, valueSet: ValueSetUpdate): Promise<ValueSet | null> => {
     const result = await db
       .updateTable('catalog.value_set')
       .set({
@@ -43,7 +49,7 @@ export const valueSetRepository = {
     return result ?? null;
   },
 
-  deleteValueSet: async (id: number): Promise<void> => {
+  delete: async (id: number): Promise<void> => {
     await db.deleteFrom('catalog.value_set').where('id', '=', id).execute();
   },
 };

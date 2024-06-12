@@ -10,7 +10,7 @@ import { dictionaryRepository } from './dictionaryRepository';
 export const dictionaryService = {
   findAll: async (): Promise<ServiceResponse<Dictionary[] | null>> => {
     try {
-      const dictionaries = await dictionaryRepository.findAllDictionaries();
+      const dictionaries = await dictionaryRepository.findAll();
       if (!dictionaries.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No dictionaries found', null, StatusCodes.NOT_FOUND);
       }
@@ -24,7 +24,7 @@ export const dictionaryService = {
 
   findById: async (id: number): Promise<ServiceResponse<Dictionary | null>> => {
     try {
-      const dictionary = await dictionaryRepository.findDictionaryById(id);
+      const dictionary = await dictionaryRepository.findById(id);
       if (dictionary) {
         return new ServiceResponse(ResponseStatus.Success, 'Dictionary found', dictionary, StatusCodes.OK);
       } else {
@@ -44,7 +44,12 @@ export const dictionaryService = {
         return resourceValidation;
       }
 
-      const newDictionary = await dictionaryRepository.createDictionary(dictionary);
+      const uniquenessCheck = await handleUniquenessChecks(dictionary);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const newDictionary = await dictionaryRepository.create(dictionary);
       return new ServiceResponse(
         ResponseStatus.Success,
         'Dictionary created successfully',
@@ -65,7 +70,12 @@ export const dictionaryService = {
         return resourceValidation;
       }
 
-      const updatedDictionary = await dictionaryRepository.updateDictionary(id, dictionary);
+      const uniquenessCheck = await handleUniquenessChecks(dictionary);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const updatedDictionary = await dictionaryRepository.update(id, dictionary);
       if (updatedDictionary) {
         return new ServiceResponse(
           ResponseStatus.Success,
@@ -85,7 +95,7 @@ export const dictionaryService = {
 
   delete: async (id: number): Promise<ServiceResponse> => {
     try {
-      await dictionaryRepository.deleteDictionary(id);
+      await dictionaryRepository.delete(id);
       return new ServiceResponse(ResponseStatus.Success, 'Dictionary deleted successfully', null, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error deleting dictionary with id ${id}: ${(error as Error).message}`;
@@ -93,4 +103,23 @@ export const dictionaryService = {
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
+};
+
+const handleUniquenessChecks = async (
+  dictionary: NewDictionary | DictionaryUpdate,
+  id?: number
+): Promise<ServiceResponse<null>> => {
+  if (dictionary.resource_id) {
+    const existingByResourceId = await dictionaryRepository.findByResourceId(dictionary.resource_id);
+    if (existingByResourceId && existingByResourceId.id !== id) {
+      return new ServiceResponse(
+        ResponseStatus.Failed,
+        `A Dictionary with resource_id ${dictionary.resource_id} already exists.`,
+        null,
+        StatusCodes.CONFLICT
+      );
+    }
+  }
+
+  return new ServiceResponse(ResponseStatus.Success, 'Uniqueness checks passed', null, StatusCodes.OK);
 };

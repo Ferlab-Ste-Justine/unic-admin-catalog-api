@@ -7,10 +7,10 @@ import { commonValidations } from '@/common/utils/commonValidation';
 extendZodWithOpenApi(z);
 
 export const DictTableSchema = z.object({
-  id: z.number().optional(),
+  id: commonValidations.id,
   last_update: z.date().optional(),
   dictionary_id: z.number(),
-  name: z.string(),
+  name: z.string().max(255, 'name can have a maximum of 255 characters'),
   entity_type: z.enum([
     'patient',
     'observation',
@@ -35,10 +35,10 @@ export const DictTableSchema = z.object({
       'pregnancy',
       'medical_history',
     ])
-    .nullable(),
-  label_en: z.string(),
-  label_fr: z.string(),
-  row_filter: z.string().optional(),
+    .nullish(),
+  label_en: z.string().max(500, 'label_en can have a maximum of 500 characters'),
+  label_fr: z.string().max(500, 'label_fr can have a maximum of 500 characters'),
+  row_filter: z.string().max(500, 'row_filter can have a maximum of 500 characters').nullish(),
   to_be_published: z.boolean(),
 });
 

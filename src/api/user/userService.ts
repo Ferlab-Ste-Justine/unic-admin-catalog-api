@@ -2,7 +2,8 @@ import bcrypt from 'bcrypt';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
-import { PublicUser, User } from '@/api/user/userModel';
+import { resourceRepository } from '@/api/resource/resourceRepository';
+import { NewUser, PublicUser, User } from '@/api/user/userModel';
 import { userRepository } from '@/api/user/userRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
@@ -12,7 +13,7 @@ const JWT_SECRET = process.env.JWT_SECRET as string;
 export const userService = {
   findAll: async (): Promise<ServiceResponse<PublicUser[] | null>> => {
     try {
-      const users = await userRepository.findAllUsers();
+      const users = await userRepository.findAll();
       if (!users) {
         return new ServiceResponse(ResponseStatus.Failed, 'No Users found', null, StatusCodes.NOT_FOUND);
       }
@@ -26,7 +27,7 @@ export const userService = {
 
   findById: async (id: number): Promise<ServiceResponse<PublicUser | null>> => {
     try {
-      const user = await userRepository.findUserById(id);
+      const user = await userRepository.findById(id);
       if (!user) {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
       }
@@ -38,13 +39,18 @@ export const userService = {
     }
   },
 
-  register: async (body: User): Promise<ServiceResponse<PublicUser | null>> => {
+  register: async (user: User): Promise<ServiceResponse<PublicUser | null>> => {
     try {
-      const user = await userRepository.createUser(body);
+      const uniquenessCheck = await handleUniquenessChecks(user);
+      if (!uniquenessCheck.success) {
+        return uniquenessCheck;
+      }
+
+      const createdUser = await userRepository.create(user);
       return new ServiceResponse<PublicUser>(
         ResponseStatus.Success,
         'User created successfully',
-        user,
+        createdUser,
         StatusCodes.CREATED
       );
     } catch (error) {
@@ -56,7 +62,7 @@ export const userService = {
 
   login: async (email: string, password: string): Promise<ServiceResponse<string | null>> => {
     try {
-      const user = await userRepository.findUserByEmail(email);
+      const user = await userRepository.findByEmail(email);
 
       if (!user) {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
@@ -76,4 +82,20 @@ export const userService = {
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }
   },
+};
+
+const handleUniquenessChecks = async (user: NewUser, id?: number): Promise<ServiceResponse<null>> => {
+  if (user.email) {
+    const existingByEmail = await resourceRepository.findByCode(user.email);
+    if (existingByEmail && existingByEmail.id !== id) {
+      return new ServiceResponse(
+        ResponseStatus.Failed,
+        `A User with email ${user.email} already exists.`,
+        null,
+        StatusCodes.CONFLICT
+      );
+    }
+  }
+
+  return new ServiceResponse(ResponseStatus.Success, 'Uniqueness checks passed', null, StatusCodes.OK);
 };
