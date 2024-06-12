@@ -3,13 +3,13 @@ import express, { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
+import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
 
 import {
   CreateValueSetCodeSchema,
   DeleteValueSetCodeSchema,
   GetValueSetCodeSchema,
-  GetValueSetCodesSchema,
   UpdateValueSetCodeSchema,
   ValueSetCodeSchema,
 } from './valueSetCodeModel';
@@ -21,16 +21,15 @@ valueSetCodeRegistry.register('ValueSetCode', ValueSetCodeSchema);
 export const valueSetCodeRouter: Router = (() => {
   const router = express.Router();
 
+  router.use(verifyToken);
+
   valueSetCodeRegistry.registerPath({
     method: 'get',
     path: '/value-set-codes',
     tags: ['Value Set Code'],
-    request: {
-      query: GetValueSetCodesSchema.shape.query,
-    },
     responses: createApiResponse(z.array(ValueSetCodeSchema), 'Success'),
   });
-  router.get('/', validateRequest(GetValueSetCodesSchema), getAllValueSetCodes);
+  router.get('/', getAllValueSetCodes);
 
   // Get a value set code by ID
   valueSetCodeRegistry.registerPath({

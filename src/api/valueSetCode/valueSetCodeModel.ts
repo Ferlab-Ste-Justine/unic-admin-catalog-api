@@ -8,17 +8,11 @@ extendZodWithOpenApi(z);
 
 export const ValueSetCodeSchema = z.object({
   id: z.number().optional(),
-  value_set_id: commonValidations.id,
+  value_set_id: z.number().optional(),
   last_update: z.date().optional(),
   code: z.string(),
   label_fr: z.string(),
   label_en: z.string(),
-});
-
-export const GetValueSetCodesSchema = z.object({
-  query: z.object({
-    value_set_id: commonValidations.id.optional(),
-  }),
 });
 
 export const GetValueSetCodeSchema = z.object({
