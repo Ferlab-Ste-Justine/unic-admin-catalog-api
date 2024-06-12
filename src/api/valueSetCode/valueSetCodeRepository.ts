@@ -18,14 +18,8 @@ export const valueSetCodeRepository = {
     return result ?? null;
   },
 
-  findAllValueSetCodes: async (value_set_id?: string): Promise<ValueSetCode[]> => {
-    let query = db.selectFrom('catalog.value_set_code').selectAll();
-
-    if (value_set_id) {
-      query = query.where('value_set_id', '=', parseInt(value_set_id, 10));
-    }
-
-    return await query.execute();
+  findAllValueSetCodes: async (): Promise<ValueSetCode[]> => {
+    return await db.selectFrom('catalog.value_set_code').selectAll().execute();
   },
 
   updateValueSetCode: async (id: number, valueSetCode: ValueSetCodeUpdate): Promise<ValueSetCode | null> => {

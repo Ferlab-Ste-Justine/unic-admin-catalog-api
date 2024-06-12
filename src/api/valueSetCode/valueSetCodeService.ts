@@ -29,9 +29,9 @@ export const valueSetCodeService = {
     }
   },
 
-  findAll: async (value_set_id?: string): Promise<ServiceResponse<ValueSetCode[] | null>> => {
+  findAll: async (): Promise<ServiceResponse<ValueSetCode[] | null>> => {
     try {
-      const valueSetCodes = await valueSetCodeRepository.findAllValueSetCodes(value_set_id);
+      const valueSetCodes = await valueSetCodeRepository.findAllValueSetCodes();
       if (!valueSetCodes.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No Value Set Codes found', null, StatusCodes.NOT_FOUND);
       }

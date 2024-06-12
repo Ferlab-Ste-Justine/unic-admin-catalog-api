@@ -95,8 +95,7 @@ export const valueSetCodeRouter: Router = (() => {
 })();
 
 async function getAllValueSetCodes(req: Request, res: Response) {
-  const value_set_id = req.query.value_set_id as string | undefined;
-  const valueSetCodes = await valueSetCodeService.findAll(value_set_id);
+  const valueSetCodes = await valueSetCodeService.findAll();
   handleServiceResponse(valueSetCodes, res);
 }
 
