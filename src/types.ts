@@ -4,6 +4,7 @@ import { DictTableTable } from '@/api/dictTable/dictTableModel';
 import { ResourceTable } from '@/api/resource/resourceModel';
 import { UserTable } from '@/api/user/userModel';
 import { ValueSetTable } from '@/api/valueSet/valueSetModel';
+import { ValueSetCodeTable } from '@/api/valueSetCode/valueSetCodeModel';
 import { VariableTable } from '@/api/variable/variableModel';
 
 export interface Database {
@@ -14,4 +15,5 @@ export interface Database {
   'catalog.dictionary': DictionaryTable;
   'catalog.dict_table': DictTableTable;
   'catalog.variable': VariableTable;
+  'catalog.value_set_code': ValueSetCodeTable;
 }
