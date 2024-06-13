@@ -19,3 +19,5 @@ export interface Database {
   'catalog.value_set_code': ValueSetCodeTable;
   'catalog.mapping': MappingTable;
 }
+
+export type SortOrder = 'asc' | 'desc';

@@ -3,14 +3,20 @@ import { StatusCodes } from 'http-status-codes';
 import { validateAnalystId } from '@/api/helpers';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
+import { SortOrder } from '@/types';
 
-import { NewResource, Resource, ResourceUpdate } from './resourceModel';
+import { NewResource, Resource, ResourceSearchFields, ResourceSortColumn, ResourceUpdate } from './resourceModel';
 import { resourceRepository } from './resourceRepository';
 
 export const resourceService = {
-  findAll: async (name?: string): Promise<ServiceResponse<Resource[] | null>> => {
+  findAll: async (
+    searchField?: ResourceSearchFields,
+    searchValue?: string,
+    sortBy?: ResourceSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<ServiceResponse<Resource[] | null>> => {
     try {
-      const resources = await resourceRepository.findAll(name);
+      const resources = await resourceRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!resources.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No resources found', null, StatusCodes.NOT_FOUND);
       }

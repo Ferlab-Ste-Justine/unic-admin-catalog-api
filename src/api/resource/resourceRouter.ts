@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { SortOrder } from '@/types';
 
 import {
   CreateResourceSchema,
@@ -12,6 +13,8 @@ import {
   GetResourceSchema,
   GetResourcesSchema,
   ResourceSchema,
+  ResourceSearchFields,
+  ResourceSortColumn,
   UpdateResourceSchema,
 } from './resourceModel';
 import { resourceService } from './resourceService';
@@ -96,8 +99,11 @@ export const resourceRouter: Router = (() => {
 })();
 
 async function getAllResources(req: Request, res: Response) {
-  const search = req.query.name as string | undefined;
-  const resources = await resourceService.findAll(search);
+  const searchField = req.query.searchField as ResourceSearchFields | undefined;
+  const searchValue = req.query.searchValue as string | undefined;
+  const sortBy = req.query.sortBy as ResourceSortColumn | undefined;
+  const sortOrder = (req.query.sortOrder as SortOrder) || 'asc';
+  const resources = await resourceService.findAll(searchField, searchValue, sortBy, sortOrder);
   handleServiceResponse(resources, res);
 }
 

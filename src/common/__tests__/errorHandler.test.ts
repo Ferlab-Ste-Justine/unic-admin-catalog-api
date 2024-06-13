@@ -4,20 +4,6 @@ import request from 'supertest';
 
 import errorHandler from '@/common/middleware/errorHandler';
 
-vi.mock('pg', () => {
-  const mClient = {
-    connect: vi.fn(),
-    query: vi.fn(),
-    end: vi.fn(),
-  };
-  const mPool = {
-    connect: vi.fn(() => Promise.resolve(mClient)),
-    query: vi.fn(() => Promise.resolve()),
-    end: vi.fn(),
-  };
-  return { Pool: vi.fn(() => mPool) }; // Exporting Pool
-});
-
 describe('Error Handler Middleware', () => {
   let app: Express;
 

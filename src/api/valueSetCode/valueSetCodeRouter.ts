@@ -31,7 +31,6 @@ export const valueSetCodeRouter: Router = (() => {
   });
   router.get('/', getAllValueSetCodes);
 
-  // Get a value set code by ID
   valueSetCodeRegistry.registerPath({
     method: 'get',
     path: '/value-set-codes/{id}',
@@ -43,7 +42,6 @@ export const valueSetCodeRouter: Router = (() => {
   });
   router.get('/:id', validateRequest(GetValueSetCodeSchema), getValueSetCodeById);
 
-  // Create a new value set code
   valueSetCodeRegistry.registerPath({
     method: 'post',
     path: '/value-set-codes',
@@ -61,7 +59,6 @@ export const valueSetCodeRouter: Router = (() => {
   });
   router.post('/', validateRequest(CreateValueSetCodeSchema), createNewValueSetCode);
 
-  // Update a value set code by ID
   valueSetCodeRegistry.registerPath({
     method: 'put',
     path: '/value-set-codes/{id}',

@@ -6,6 +6,12 @@ import { commonValidations } from '@/common/utils/commonValidation';
 
 extendZodWithOpenApi(z);
 
+export const ResourceSearchFieldsSchema = z.enum(['name', 'code']);
+export type ResourceSearchFields = z.infer<typeof ResourceSearchFieldsSchema>;
+
+export const ResourceSortColumnsSchema = z.enum(['name', 'code']);
+export type ResourceSortColumn = z.infer<typeof ResourceSortColumnsSchema>;
+
 export const ResourceSchema = z.object({
   id: commonValidations.id,
   last_update: z.date().nullish(),
@@ -28,11 +34,15 @@ export const ResourceSchema = z.object({
   system_database_type: z.string().max(255, 'system_database_type can have a maximum of 255 characters').nullish(),
   analyst_id: z.number().nullish(),
   system_collection_starting_year: z.number().nullish(),
+  analyst_name: z.string().max(255, 'analyst_name can have a maximum of 255 characters').nullish(),
 });
 
 export const GetResourcesSchema = z.object({
   query: z.object({
-    name: z.string().nullish(),
+    searchField: ResourceSearchFieldsSchema.optional(),
+    searchValue: z.string().optional(),
+    sortBy: ResourceSortColumnsSchema.optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });
 
@@ -41,12 +51,12 @@ export const GetResourceSchema = z.object({
 });
 
 export const CreateResourceSchema = z.object({
-  body: ResourceSchema.omit({ id: true, last_update: true }),
+  body: ResourceSchema.omit({ id: true, last_update: true, analyst_name: true }),
 });
 
 export const UpdateResourceSchema = z.object({
   params: z.object({ id: commonValidations.id }),
-  body: ResourceSchema.omit({ id: true, last_update: true }),
+  body: ResourceSchema.omit({ id: true, last_update: true, analyst_name: true }),
 });
 
 export const DeleteResourceSchema = z.object({
@@ -75,6 +85,7 @@ export interface ResourceTable {
   system_database_type: string | null;
   analyst_id?: number;
   system_collection_starting_year: number | null;
+  analyst_name: string | null;
 }
 
 export type Resource = Selectable<ResourceTable>;
