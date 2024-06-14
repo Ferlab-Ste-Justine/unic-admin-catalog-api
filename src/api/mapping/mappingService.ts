@@ -71,7 +71,7 @@ export const mappingService = {
         return valueSetCodeValidation;
       }
 
-      const uniquenessCheck = await handleUniquenessChecks(mapping);
+      const uniquenessCheck = await handleUniquenessChecks(mapping, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }

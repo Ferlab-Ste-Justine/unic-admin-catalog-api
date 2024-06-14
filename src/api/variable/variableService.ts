@@ -3,14 +3,20 @@ import { StatusCodes } from 'http-status-codes';
 import { validateDictTableId, validateValueSetId } from '@/api/helpers';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
+import { SortOrder } from '@/types';
 
-import { NewVariable, Variable, VariableUpdate } from './variableModel';
+import { NewVariable, Variable, VariableSearchFields, VariableSortColumn, VariableUpdate } from './variableModel';
 import { variableRepository } from './variableRepository';
 
 export const variableService = {
-  findAll: async (name?: string): Promise<ServiceResponse<Variable[] | null>> => {
+  findAll: async (
+    searchField?: VariableSearchFields,
+    searchValue?: string,
+    sortBy?: VariableSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<ServiceResponse<Variable[] | null>> => {
     try {
-      const variables = await variableRepository.findAll(name);
+      const variables = await variableRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!variables.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No Variables found', null, StatusCodes.NOT_FOUND);
       }
@@ -81,12 +87,13 @@ export const variableService = {
         return tableValidation;
       }
 
-      const uniquenessCheck = await handleUniquenessChecks(variable);
+      const uniquenessCheck = await handleUniquenessChecks(variable, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }
 
       const updatedVariable = await variableRepository.update(id, variable);
+
       if (updatedVariable) {
         return new ServiceResponse(
           ResponseStatus.Success,

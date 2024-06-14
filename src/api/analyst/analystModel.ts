@@ -6,20 +6,29 @@ import { commonValidations } from '@/common/utils/commonValidation';
 
 extendZodWithOpenApi(z);
 
+export const AnalystSearchFieldsSchema = z.enum(['name']);
+export type AnalystSearchFields = z.infer<typeof AnalystSearchFieldsSchema>;
+
+export const AnalystSortColumnsSchema = z.enum(['name']);
+export type AnalystSortColumn = z.infer<typeof AnalystSortColumnsSchema>;
+
 export const AnalystSchema = z.object({
   id: commonValidations.id,
   last_update: z.date(),
   name: z.string().max(255, 'name can have a maximum of 255 characters'),
 });
 
-export const GetAnalystSchema = z.object({
-  params: z.object({ id: commonValidations.id }),
-});
-
 export const GetAnalystsSchema = z.object({
   query: z.object({
-    name: z.string().optional(),
+    searchField: AnalystSearchFieldsSchema.optional(),
+    searchValue: z.string().optional(),
+    sortBy: AnalystSortColumnsSchema.optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
+});
+
+export const GetAnalystSchema = z.object({
+  params: z.object({ id: commonValidations.id }),
 });
 
 export const CreateAnalystSchema = z.object({

@@ -1,22 +1,10 @@
 import { db } from '@/db';
 import { SortOrder } from '@/types';
 
-import {
-  NewResource,
-  Resource,
-  ResourceSearchFields,
-  ResourceSortColumn,
-  ResourceTable,
-  ResourceUpdate,
-} from './resourceModel';
+import { NewResource, Resource, ResourceSearchFields, ResourceSortColumn, ResourceUpdate } from './resourceModel';
 
 const RESOURCE_TABLE = 'catalog.resource';
 const ANALYST_TABLE = 'catalog.analyst';
-
-const validSortColumns: Record<ResourceSortColumn, keyof ResourceTable> = {
-  name: 'name',
-  code: 'code',
-};
 
 export const resourceRepository = {
   findAll: async (
@@ -36,7 +24,7 @@ export const resourceRepository = {
     }
 
     if (sortBy) {
-      query = query.orderBy(`${RESOURCE_TABLE}.${validSortColumns[sortBy]}` as any, sortOrder);
+      query = query.orderBy(`${RESOURCE_TABLE}.${sortBy}`, sortOrder);
     }
 
     return await query.execute();
@@ -45,7 +33,7 @@ export const resourceRepository = {
   findById: async (id: number): Promise<Resource | null> => {
     const result = await db
       .selectFrom(RESOURCE_TABLE)
-      .leftJoin('catalog.analyst', 'catalog.resource.analyst_id', 'catalog.analyst.id')
+      .leftJoin(ANALYST_TABLE, `${RESOURCE_TABLE}.analyst_id`, `${ANALYST_TABLE}.id`)
       .selectAll(RESOURCE_TABLE)
       .select([`${ANALYST_TABLE}.name as analyst_name`])
       .where(`${RESOURCE_TABLE}.id`, '=', id)

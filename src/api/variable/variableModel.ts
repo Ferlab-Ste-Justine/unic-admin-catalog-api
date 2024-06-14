@@ -6,6 +6,12 @@ import { commonValidations } from '@/common/utils/commonValidation';
 
 extendZodWithOpenApi(z);
 
+export const VariableSearchFieldsSchema = z.enum(['name', 'path', 'value_type']);
+export type VariableSearchFields = z.infer<typeof VariableSearchFieldsSchema>;
+
+export const VariableSortColumnsSchema = z.enum(['name', 'path', 'value_type']);
+export type VariableSortColumn = z.infer<typeof VariableSortColumnsSchema>;
+
 export const VariableSchema = z.object({
   id: commonValidations.id,
   last_update: z.date().optional(),
@@ -16,17 +22,22 @@ export const VariableSchema = z.object({
   label_fr: z.string().max(255, 'label_fr can have a maximum of 255 characters'),
   label_en: z.string().max(255, 'label_en can have a maximum of 255 characters'),
   value_set_id: z.number().nullish(),
-  from_variable_id: z.number().nullish(),
+  from_variable_id: z.array(z.number()).nullish(),
   derivation_algorithm: z.string().max(500, 'derivation_algorithm can have a maximum of 500 characters').nullish(),
   notes: z.string().max(255, 'notes can have a maximum of 255 characters').nullish(),
   variable_status: z.enum(['to_do', 'on_hold', 'in_progress', 'completed', 'delivered', 'removed']),
   rolling_version: z.enum(['obsolete', 'current', 'future']),
   to_be_published: z.boolean(),
+  table_name: z.string().max(255, 'table_name can have a maximum of 255 characters').nullish(),
+  value_set_name: z.string().max(255, 'value_set_name can have a maximum of 255 characters').nullish(),
 });
 
 export const GetVariablesSchema = z.object({
   query: z.object({
-    name: z.string().optional(),
+    searchField: VariableSearchFieldsSchema.optional(),
+    searchValue: z.string().optional(),
+    sortBy: VariableSortColumnsSchema.optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });
 
@@ -35,12 +46,12 @@ export const GetVariableSchema = z.object({
 });
 
 export const CreateVariableSchema = z.object({
-  body: VariableSchema.omit({ id: true, last_update: true }),
+  body: VariableSchema.omit({ id: true, last_update: true, table_name: true }),
 });
 
 export const UpdateVariableSchema = z.object({
   params: z.object({ id: commonValidations.id }),
-  body: VariableSchema.omit({ id: true, last_update: true, table_id: true }),
+  body: VariableSchema.omit({ id: true, last_update: true, table_name: true }),
 });
 
 export interface VariableTable {

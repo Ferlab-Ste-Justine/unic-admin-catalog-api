@@ -38,7 +38,7 @@ export const dictTableRouter: Router = (() => {
 
   dictTableRegistry.registerPath({
     method: 'get',
-    path: '/dict-tables/:id',
+    path: '/dict-tables/{id}',
     tags: ['Dict Table'],
     request: {
       params: GetDictTableSchema.shape.params,
@@ -66,7 +66,7 @@ export const dictTableRouter: Router = (() => {
 
   dictTableRegistry.registerPath({
     method: 'put',
-    path: '/dict-tables/:id',
+    path: '/dict-tables/{id}',
     tags: ['Dict Table'],
     request: {
       params: UpdateDictTableSchema.shape.params,
@@ -84,7 +84,7 @@ export const dictTableRouter: Router = (() => {
 
   dictTableRegistry.registerPath({
     method: 'delete',
-    path: '/dict-tables/:id',
+    path: '/dict-tables/{id}',
     tags: ['Dict Table'],
     request: {
       params: GetDictTableSchema.shape.params,

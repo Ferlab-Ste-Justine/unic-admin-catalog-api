@@ -5,9 +5,12 @@ import { z } from 'zod';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { SortOrder } from '@/types';
 
 import {
   AnalystSchema,
+  AnalystSearchFields,
+  AnalystSortColumn,
   CreateAnalystSchema,
   DeleteAnalystSchema,
   GetAnalystSchema,
@@ -96,8 +99,11 @@ export const analystRouter: Router = (() => {
 })();
 
 async function getAllAnalysts(req: Request, res: Response) {
-  const search = req.query.name as string | undefined;
-  const analysts = await analystService.findAll(search);
+  const searchField = req.query.searchField as AnalystSearchFields | undefined;
+  const searchValue = req.query.searchValue as string | undefined;
+  const sortBy = req.query.sortBy as AnalystSortColumn | undefined;
+  const sortOrder = (req.query.sortOrder as SortOrder) || 'asc';
+  const analysts = await analystService.findAll(searchField, searchValue, sortBy, sortOrder);
   handleServiceResponse(analysts, res);
 }
 

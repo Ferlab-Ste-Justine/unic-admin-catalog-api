@@ -1,32 +1,43 @@
-import { Analyst, AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
+import { Analyst, AnalystSearchFields, AnalystSortColumn, AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
 import { db } from '@/db';
+import { SortOrder } from '@/types';
+
+const ANALYST_TABLE = 'catalog.analyst';
 
 export const analystRepository = {
+  findAll: async (
+    searchField?: AnalystSearchFields,
+    searchValue?: string,
+    sortBy?: AnalystSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<Analyst[]> => {
+    let query = db.selectFrom(ANALYST_TABLE).selectAll();
+
+    if (searchField && searchValue) {
+      query = query.where(`${ANALYST_TABLE}.${searchField}`, 'like', `%${searchValue}%`);
+    }
+
+    if (sortBy) {
+      query = query.orderBy(`${ANALYST_TABLE}.${sortBy}`, sortOrder);
+    }
+    return await query.execute();
+  },
+
   findById: async (id: number): Promise<Analyst | null> => {
-    const result = await db.selectFrom('catalog.analyst').where('id', '=', id).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(ANALYST_TABLE).where('id', '=', id).selectAll().executeTakeFirst();
 
     return result ?? null;
   },
 
   findByName: async (name: string): Promise<Analyst | null> => {
-    const result = await db.selectFrom('catalog.analyst').where('name', '=', name).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(ANALYST_TABLE).where('name', '=', name).selectAll().executeTakeFirst();
 
     return result ?? null;
   },
 
-  findAll: async (name?: string): Promise<Analyst[]> => {
-    let query = db.selectFrom('catalog.analyst').selectAll();
-
-    if (name) {
-      query = query.where('name', 'like', `%${name}%`);
-    }
-
-    return await query.execute();
-  },
-
   create: async (analyst: NewAnalyst): Promise<Analyst> => {
     return await db
-      .insertInto('catalog.analyst')
+      .insertInto(ANALYST_TABLE)
       .values({
         ...analyst,
         last_update: new Date(),
@@ -37,7 +48,7 @@ export const analystRepository = {
 
   update: async (id: number, analyst: AnalystUpdate): Promise<Analyst | null> => {
     const result = await db
-      .updateTable('catalog.analyst')
+      .updateTable(ANALYST_TABLE)
       .set({
         ...analyst,
         last_update: new Date(),
@@ -50,6 +61,6 @@ export const analystRepository = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await db.deleteFrom('catalog.analyst').where('id', '=', id).execute();
+    await db.deleteFrom(ANALYST_TABLE).where('id', '=', id).execute();
   },
 };

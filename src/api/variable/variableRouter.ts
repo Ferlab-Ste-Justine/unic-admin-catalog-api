@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { SortOrder } from '@/types';
 
 import {
   CreateVariableSchema,
@@ -12,6 +13,8 @@ import {
   GetVariablesSchema,
   UpdateVariableSchema,
   VariableSchema,
+  VariableSearchFields,
+  VariableSortColumn,
 } from './variableModel';
 import { variableService } from './variableService';
 
@@ -36,7 +39,7 @@ export const variableRouter: Router = (() => {
 
   variableRegistry.registerPath({
     method: 'get',
-    path: '/variables/:id',
+    path: '/variables/{id}',
     tags: ['Variable'],
     request: {
       params: GetVariableSchema.shape.params,
@@ -64,7 +67,7 @@ export const variableRouter: Router = (() => {
 
   variableRegistry.registerPath({
     method: 'put',
-    path: '/variables/:id',
+    path: '/variables/{id}',
     tags: ['Variable'],
     request: {
       params: UpdateVariableSchema.shape.params,
@@ -82,7 +85,7 @@ export const variableRouter: Router = (() => {
 
   variableRegistry.registerPath({
     method: 'delete',
-    path: '/variables/:id',
+    path: '/variables/{id}',
     tags: ['Variable'],
     request: {
       params: GetVariableSchema.shape.params,
@@ -95,8 +98,11 @@ export const variableRouter: Router = (() => {
 })();
 
 async function getAllVariables(req: Request, res: Response) {
-  const search = req.query.name as string | undefined;
-  const variables = await variableService.findAll(search);
+  const searchField = req.query.searchField as VariableSearchFields | undefined;
+  const searchValue = req.query.searchValue as string | undefined;
+  const sortBy = req.query.sortBy as VariableSortColumn | undefined;
+  const sortOrder = (req.query.sortOrder as SortOrder) || 'asc';
+  const variables = await variableService.findAll(searchField, searchValue, sortBy, sortOrder);
   handleServiceResponse(variables, res);
 }
 

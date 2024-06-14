@@ -3,6 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
+import { invalidMockResource, mockResource } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
@@ -20,37 +21,12 @@ describe('Resource API endpoints', () => {
     vi.clearAllMocks();
   });
 
-  const resourceMock: Resource = {
-    id: 1,
-    last_update: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    code: 'R1',
-    name: 'Resource 1',
-    title: 'Title 1',
-    resource_type: 'warehouse',
-    description_en: 'Description in English',
-    description_fr: 'Description in French',
-    principal_investigator: 'Investigator Name',
-    erb_project_id: 'ERB123',
-    project_creation_date: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    project_active: 'active',
-    project_status: 'in progress',
-    project_approved: true,
-    project_folder: 'folder/path',
-    project_approval_date: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    project_completion_date: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    to_be_published: true,
-    system_database_type: 'Type A',
-    analyst_id: 1,
-    system_collection_starting_year: 2020,
-    analyst_name: 'Analyst Name',
-  };
-
   describe('GET /resources', () => {
     it('should return a list of resources', async () => {
-      const resources: Resource[] = [resourceMock];
+      const resources: Resource[] = [mockResource];
 
       (resourceService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Resources found', [resourceMock], StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Resources found', [mockResource], StatusCodes.OK)
       );
 
       const response = await request(app).get('/resources');
@@ -61,13 +37,39 @@ describe('Resource API endpoints', () => {
     });
 
     it('should apply search filters', async () => {
-      const resources: Resource[] = [resourceMock];
+      const resources: Resource[] = [mockResource];
 
       (resourceService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Resources found', [resourceMock], StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Resources found', [mockResource], StatusCodes.OK)
       );
 
       const response = await request(app).get('/resources?searchField=name&searchValue=Resource 1');
+
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.responseObject).toEqual(resources);
+    });
+
+    it('should return empty array when no resources match search filters', async () => {
+      (resourceService.findAll as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Success, 'Resources found', [], StatusCodes.OK)
+      );
+
+      const response = await request(app).get('/resources?searchField=name&searchValue=NonExistentResource');
+
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.responseObject).toEqual([]);
+    });
+
+    it('should return resources sorted by name in ascending order', async () => {
+      const resources: Resource[] = [mockResource];
+
+      (resourceService.findAll as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Success, 'Resources found', resources, StatusCodes.OK)
+      );
+
+      const response = await request(app).get('/resources?sortBy=name&sortOrder=asc');
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
@@ -78,55 +80,72 @@ describe('Resource API endpoints', () => {
   describe('GET /resources/:id', () => {
     it('should return a single resource by id', async () => {
       (resourceService.findById as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Resource found', resourceMock, StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Resource found', mockResource, StatusCodes.OK)
       );
 
       const response = await request(app).get('/resources/1');
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(resourceMock);
+      expect(response.body.responseObject).toEqual(mockResource);
+    });
+
+    it('should return 404 for a non-existent resource by id', async () => {
+      (resourceService.findById as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND)
+      );
+
+      const response = await request(app).get('/resources/999');
+
+      expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      expect(response.body.success).toBeFalsy();
     });
   });
 
   describe('POST /resources', () => {
     it('should create a new resource', async () => {
       (resourceService.create as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Resource created', resourceMock, StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Resource created', mockResource, StatusCodes.OK)
       );
 
-      const response = await request(app).post('/resources').send({
-        name: 'New Resource',
-        code: 'NR',
-        title: 'New Title',
-        resource_type: 'warehouse',
-        description_en: 'New description in English',
-        description_fr: 'New description in French',
-        principal_investigator: 'New Investigator',
-        erb_project_id: 'ERB124',
-        project_creation_date: new Date(),
-        project_active: 'active',
-        project_status: 'in progress',
-        project_approved: true,
-        project_folder: 'new/folder/path',
-        project_approval_date: new Date(),
-        project_completion_date: new Date(),
-        to_be_published: true,
-        system_database_type: 'Type B',
-        analyst_id: 1,
-        system_collection_starting_year: 2021,
-        analyst_name: 'New Analyst Name',
-      });
+      const response = await request(app).post('/resources').send(mockResource);
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(resourceMock);
+      expect(response.body.responseObject).toEqual(mockResource);
+    });
+
+    it('should return error for missing required fields', async () => {
+      const response = await request(app).post('/resources').send({
+        code: 'NR',
+      });
+
+      expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(response.body.success).toBeFalsy();
+    });
+
+    it('should return error for invalid data types', async () => {
+      const response = await request(app).post('/resources').send(invalidMockResource);
+
+      expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
+      expect(response.body.success).toBeFalsy();
+    });
+
+    it('should return error for duplicate resource creation', async () => {
+      (resourceService.create as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Resource already exists', null, StatusCodes.CONFLICT)
+      );
+
+      const response = await request(app).post('/resources').send(mockResource);
+
+      expect(response.statusCode).toEqual(StatusCodes.CONFLICT);
+      expect(response.body.success).toBeFalsy();
     });
   });
 
   describe('PUT /resources/:id', () => {
     it('should update an existing resource', async () => {
-      const updatedResource: Resource = { ...resourceMock, name: 'Updated Resource' };
+      const updatedResource: Resource = { ...mockResource, name: 'Updated Resource' };
 
       (resourceService.update as Mock).mockResolvedValue(
         new ServiceResponse(ResponseStatus.Success, 'Resource updated', updatedResource, StatusCodes.OK)
@@ -134,11 +153,24 @@ describe('Resource API endpoints', () => {
 
       const response = await request(app)
         .put('/resources/1')
-        .send({ ...resourceMock, name: 'Updated Resource' });
+        .send({ ...mockResource, name: 'Updated Resource' });
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
       expect(response.body.responseObject).toEqual(updatedResource);
+    });
+
+    it('should return 404 for updating a non-existent resource', async () => {
+      (resourceService.update as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND)
+      );
+
+      const response = await request(app)
+        .put('/resources/999')
+        .send({ ...mockResource, name: 'Updated Resource' });
+
+      expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      expect(response.body.success).toBeFalsy();
     });
   });
 
@@ -153,6 +185,17 @@ describe('Resource API endpoints', () => {
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
       expect(response.body.responseObject).toBeNull();
+    });
+
+    it('should return 404 for deleting a non-existent resource', async () => {
+      (resourceService.delete as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Resource not found', null, StatusCodes.NOT_FOUND)
+      );
+
+      const response = await request(app).delete('/resources/999');
+
+      expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
+      expect(response.body.success).toBeFalsy();
     });
   });
 });

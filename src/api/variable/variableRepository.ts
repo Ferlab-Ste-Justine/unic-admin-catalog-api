@@ -1,26 +1,53 @@
 import { db } from '@/db';
+import { SortOrder } from '@/types';
 
-import { NewVariable, Variable, VariableUpdate } from './variableModel';
+import { NewVariable, Variable, VariableSearchFields, VariableSortColumn, VariableUpdate } from './variableModel';
+
+const VARIABLE_TABLE = 'catalog.variable';
+const DICT_TABLE_TABLE = 'catalog.dict_table';
+const VALUE_SET_TABLE = 'catalog.value_set';
 
 export const variableRepository = {
+  findAll: async (
+    searchField?: VariableSearchFields,
+    searchValue?: string,
+    sortBy?: VariableSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<Variable[]> => {
+    let query = db
+      .selectFrom(VARIABLE_TABLE)
+      .leftJoin(DICT_TABLE_TABLE, `${VARIABLE_TABLE}.table_id`, `${DICT_TABLE_TABLE}.id`)
+      .leftJoin(VALUE_SET_TABLE, `${VARIABLE_TABLE}.value_set_id`, `${VALUE_SET_TABLE}.id`)
+      .selectAll(VARIABLE_TABLE)
+      .select([`${DICT_TABLE_TABLE}.name as table_name`, `${VALUE_SET_TABLE}.name as value_set_name`]);
+
+    if (searchField && searchValue) {
+      query = query.where(`${VARIABLE_TABLE}.${searchField}`, 'like', `%${searchValue}%`);
+    }
+
+    if (sortBy) {
+      query = query.orderBy(`${VARIABLE_TABLE}.${sortBy}`, sortOrder);
+    }
+
+    return await query.execute();
+  },
+
   findById: async (id: number): Promise<Variable | null> => {
-    const result = await db.selectFrom('catalog.variable').where('id', '=', id).selectAll().executeTakeFirst();
+    const result = await db
+      .selectFrom(VARIABLE_TABLE)
+      .leftJoin(DICT_TABLE_TABLE, `${VARIABLE_TABLE}.table_id`, `${DICT_TABLE_TABLE}.id`)
+      .leftJoin(VALUE_SET_TABLE, `${VARIABLE_TABLE}.value_set_id`, `${VALUE_SET_TABLE}.id`)
+      .selectAll(VARIABLE_TABLE)
+      .select([`${DICT_TABLE_TABLE}.name as table_name`, `${VALUE_SET_TABLE}.name as value_set_name`])
+      .where(`${VARIABLE_TABLE}.id`, '=', id)
+      .executeTakeFirst();
+
     return result ?? null;
   },
 
   findByPath: async (path: string): Promise<Variable | null> => {
     const result = await db.selectFrom('catalog.variable').where('path', '=', path).selectAll().executeTakeFirst();
     return result ?? null;
-  },
-
-  findAll: async (name?: string): Promise<Variable[]> => {
-    let query = db.selectFrom('catalog.variable').selectAll();
-
-    if (name) {
-      query = query.where('name', 'like', `%${name}%`);
-    }
-
-    return await query.execute();
   },
 
   create: async (variable: NewVariable): Promise<Variable> => {

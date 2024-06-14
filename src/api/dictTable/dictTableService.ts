@@ -71,7 +71,7 @@ export const dictTableService = {
         return dictionaryValidation;
       }
 
-      const uniquenessCheck = await handleUniquenessChecks(dictTable);
+      const uniquenessCheck = await handleUniquenessChecks(dictTable, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }

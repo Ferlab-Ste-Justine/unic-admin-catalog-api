@@ -75,7 +75,7 @@ export const resourceService = {
         return analystValidation;
       }
 
-      const uniquenessCheck = await handleUniquenessChecks(resource);
+      const uniquenessCheck = await handleUniquenessChecks(resource, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }

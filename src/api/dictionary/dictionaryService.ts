@@ -70,7 +70,7 @@ export const dictionaryService = {
         return resourceValidation;
       }
 
-      const uniquenessCheck = await handleUniquenessChecks(dictionary);
+      const uniquenessCheck = await handleUniquenessChecks(dictionary, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }

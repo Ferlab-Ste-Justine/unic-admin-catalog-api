@@ -71,7 +71,7 @@ export const valueSetCodeService = {
         return valueSetValidation;
       }
 
-      const uniquenessCheck = await handleUniquenessChecks(valueSetCode);
+      const uniquenessCheck = await handleUniquenessChecks(valueSetCode, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }

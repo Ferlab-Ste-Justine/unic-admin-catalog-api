@@ -1,7 +1,8 @@
 import { StatusCodes } from 'http-status-codes';
-import { beforeEach, Mock } from 'vitest';
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { validateAnalystId } from '@/api/helpers';
+import { mockResource } from '@/api/mocks';
 import { Resource } from '@/api/resource/resourceModel';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
@@ -24,39 +25,14 @@ describe('resourceService', () => {
     vi.clearAllMocks();
   });
 
-  const resourceMock: Resource = {
-    id: 1,
-    last_update: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    code: 'R1',
-    name: 'Resource 1',
-    title: 'Title 1',
-    resource_type: 'warehouse',
-    description_en: 'Description in English',
-    description_fr: 'Description in French',
-    principal_investigator: 'Investigator Name',
-    erb_project_id: 'ERB123',
-    project_creation_date: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    project_active: 'active',
-    project_status: 'in progress',
-    project_approved: true,
-    project_folder: 'folder/path',
-    project_approval_date: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    project_completion_date: '2024-06-13T19:53:41.824Z' as unknown as Date,
-    to_be_published: true,
-    system_database_type: 'Type A',
-    analyst_id: 1,
-    system_collection_starting_year: 2020,
-    analyst_name: 'Analyst Name',
-  };
-
   describe('findAll', () => {
     it('should return all resources', async () => {
-      (resourceRepository.findAll as Mock).mockResolvedValueOnce([resourceMock]);
+      (resourceRepository.findAll as Mock).mockResolvedValueOnce([mockResource]);
 
       const result = await resourceService.findAll();
 
       expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Success, 'Resources found', [resourceMock], StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Resources found', [mockResource], StatusCodes.OK)
       );
     });
 
@@ -84,16 +60,26 @@ describe('resourceService', () => {
         )
       );
     });
+
+    it('should handle search and sort options', async () => {
+      (resourceRepository.findAll as Mock).mockResolvedValueOnce([mockResource]);
+
+      const result = await resourceService.findAll('name', 'Resource 1', 'code', 'asc');
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Success, 'Resources found', [mockResource], StatusCodes.OK)
+      );
+    });
   });
 
   describe('findById', () => {
     it('should return a resource by id', async () => {
-      (resourceRepository.findById as Mock).mockResolvedValueOnce(resourceMock);
+      (resourceRepository.findById as Mock).mockResolvedValueOnce(mockResource);
 
       const result = await resourceService.findById(1);
 
       expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Success, 'Resource found', resourceMock, StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Resource found', mockResource, StatusCodes.OK)
       );
     });
 
@@ -125,19 +111,46 @@ describe('resourceService', () => {
 
   describe('create', () => {
     it('should create a new resource', async () => {
-      (resourceRepository.create as Mock).mockResolvedValueOnce(resourceMock);
+      (resourceRepository.create as Mock).mockResolvedValueOnce(mockResource);
 
-      const result = await resourceService.create(resourceMock);
+      const result = await resourceService.create(mockResource);
 
       expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Success, 'Resource created successfully', resourceMock, StatusCodes.CREATED)
+        new ServiceResponse(ResponseStatus.Success, 'Resource created successfully', mockResource, StatusCodes.CREATED)
+      );
+    });
+
+    it('should handle validation errors during create', async () => {
+      (validateAnalystId as Mock).mockResolvedValueOnce(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid analyst ID', null, StatusCodes.BAD_REQUEST)
+      );
+
+      const result = await resourceService.create(mockResource);
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid analyst ID', null, StatusCodes.BAD_REQUEST)
+      );
+    });
+
+    it('should handle uniqueness check errors during create', async () => {
+      (resourceRepository.findByCode as Mock).mockResolvedValueOnce(mockResource);
+
+      const result = await resourceService.create(mockResource);
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Failed,
+          `A Resource with code ${mockResource.code} already exists.`,
+          null,
+          StatusCodes.CONFLICT
+        )
       );
     });
 
     it('should handle errors during create', async () => {
       (resourceRepository.create as Mock).mockRejectedValueOnce(new Error('Database connection error'));
 
-      const result = await resourceService.create(resourceMock);
+      const result = await resourceService.create(mockResource);
 
       expect(result).toEqual(
         new ServiceResponse(
@@ -151,7 +164,8 @@ describe('resourceService', () => {
   });
 
   describe('update', () => {
-    const updatedResource: any = {
+    const updatedResource: Resource = {
+      ...mockResource,
       name: 'Updated Resource',
     };
 
@@ -162,6 +176,33 @@ describe('resourceService', () => {
 
       expect(result).toEqual(
         new ServiceResponse(ResponseStatus.Success, 'Resource updated successfully', updatedResource, StatusCodes.OK)
+      );
+    });
+
+    it('should handle validation errors during update', async () => {
+      (validateAnalystId as Mock).mockResolvedValueOnce(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid analyst ID', null, StatusCodes.BAD_REQUEST)
+      );
+
+      const result = await resourceService.update(1, updatedResource);
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid analyst ID', null, StatusCodes.BAD_REQUEST)
+      );
+    });
+
+    it('should handle uniqueness check errors during update', async () => {
+      (resourceRepository.findByCode as Mock).mockResolvedValueOnce({ ...mockResource, id: 2 });
+
+      const result = await resourceService.update(1, { ...updatedResource, code: mockResource.code });
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Failed,
+          `A Resource with code ${mockResource.code} already exists.`,
+          null,
+          StatusCodes.CONFLICT
+        )
       );
     });
 

@@ -2,14 +2,20 @@ import { StatusCodes } from 'http-status-codes';
 
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
+import { SortOrder } from '@/types';
 
-import { Analyst, AnalystUpdate, NewAnalyst } from './analystModel';
+import { Analyst, AnalystSearchFields, AnalystSortColumn, AnalystUpdate, NewAnalyst } from './analystModel';
 import { analystRepository } from './analystRepository';
 
 export const analystService = {
-  findAll: async (name?: string): Promise<ServiceResponse<Analyst[] | null>> => {
+  findAll: async (
+    searchField?: AnalystSearchFields,
+    searchValue?: string,
+    sortBy?: AnalystSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<ServiceResponse<Analyst[] | null>> => {
     try {
-      const analysts = await analystRepository.findAll(name);
+      const analysts = await analystRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!analysts.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No analysts found', null, StatusCodes.NOT_FOUND);
       }
@@ -60,7 +66,7 @@ export const analystService = {
 
   update: async (id: number, analyst: AnalystUpdate): Promise<ServiceResponse<Analyst | null>> => {
     try {
-      const uniquenessCheck = await handleUniquenessChecks(analyst);
+      const uniquenessCheck = await handleUniquenessChecks(analyst, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }

@@ -27,7 +27,7 @@ export const mappingRouter: Router = (() => {
 
   mappingRegistry.registerPath({
     method: 'get',
-    path: '/mappings/:id',
+    path: '/mappings/{id}',
     tags: ['Mapping'],
     request: {
       params: GetMappingSchema.shape.params,
@@ -55,7 +55,7 @@ export const mappingRouter: Router = (() => {
 
   mappingRegistry.registerPath({
     method: 'put',
-    path: '/mappings/:id',
+    path: '/mappings/{id}',
     tags: ['Mapping'],
     request: {
       params: UpdateMappingSchema.shape.params,
@@ -73,7 +73,7 @@ export const mappingRouter: Router = (() => {
 
   mappingRegistry.registerPath({
     method: 'delete',
-    path: '/mappings/:id',
+    path: '/mappings/{id}',
     tags: ['Mapping'],
     request: {
       params: GetMappingSchema.shape.params,

@@ -59,7 +59,7 @@ export const valueSetService = {
 
   update: async (id: number, valueSet: ValueSetUpdate): Promise<ServiceResponse<ValueSet | null>> => {
     try {
-      const uniquenessCheck = await handleUniquenessChecks(valueSet);
+      const uniquenessCheck = await handleUniquenessChecks(valueSet, id);
       if (!uniquenessCheck.success) {
         return uniquenessCheck;
       }
