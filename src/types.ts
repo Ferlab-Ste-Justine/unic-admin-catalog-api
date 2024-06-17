@@ -27,3 +27,5 @@ export const DICT_TABLE_TABLE = 'catalog.dict_table';
 export const VALUE_SET_TABLE = 'catalog.value_set';
 export const ANALYST_TABLE = 'catalog.analyst';
 export const RESOURCE_TABLE = 'catalog.resource';
+export const DICTIONARY_TABLE = 'catalog.dictionary';
+export const MAPPING_TABLE = 'catalog.mapping';

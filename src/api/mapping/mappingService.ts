@@ -126,7 +126,7 @@ const handleUniquenessChecks = async (
     if (existingByOriginalValue && existingByOriginalValue.id !== id) {
       return new ServiceResponse(
         ResponseStatus.Failed,
-        `A Mapping with original_value "${mapping.original_value}" already exists.`,
+        `A Mapping with original_value ${mapping.original_value} already exists.`,
         null,
         StatusCodes.CONFLICT
       );

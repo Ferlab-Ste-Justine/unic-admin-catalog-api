@@ -16,7 +16,7 @@ export const dictTableService = {
       }
       return new ServiceResponse(ResponseStatus.Success, 'DictTables found', dictTables, StatusCodes.OK);
     } catch (error) {
-      const errorMessage = `Error finding all analysts: ${(error as Error).message}`;
+      const errorMessage = `Error finding all dictTables: ${(error as Error).message}`;
       logger.error(errorMessage);
 
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
@@ -127,7 +127,7 @@ const handleUniquenessChecks = async (
     if (existingByName && existingByName.id !== id) {
       return new ServiceResponse(
         ResponseStatus.Failed,
-        `A Dict Table with name "${dictTable.name}" already exists.`,
+        `A Dict Table with name ${dictTable.name} already exists.`,
         null,
         StatusCodes.CONFLICT
       );

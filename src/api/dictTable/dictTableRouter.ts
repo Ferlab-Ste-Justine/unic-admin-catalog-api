@@ -2,8 +2,6 @@ import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import express, { Request, Response, Router } from 'express';
 import { z } from 'zod';
 
-import { AnalystSchema } from '@/api/analyst/analystModel';
-import { analystRegistry } from '@/api/analyst/analystRouter';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
@@ -25,14 +23,14 @@ export const dictTableRouter: Router = (() => {
 
   router.use(verifyToken);
 
-  analystRegistry.registerPath({
+  dictTableRegistry.registerPath({
     method: 'get',
     path: '/dict-tables',
     tags: ['Dict Table'],
     request: {
       query: GetDictTablesSchema.shape.query,
     },
-    responses: createApiResponse(z.array(AnalystSchema), 'Success'),
+    responses: createApiResponse(z.array(DictTableSchema), 'Success'),
   });
   router.get('/', validateRequest(GetDictTablesSchema), getAllDictTables);
 
@@ -98,8 +96,8 @@ export const dictTableRouter: Router = (() => {
 
 async function getAllDictTables(req: Request, res: Response) {
   const search = req.query.name as string | undefined;
-  const analysts = await dictTableService.findAll(search);
-  handleServiceResponse(analysts, res);
+  const dictTables = await dictTableService.findAll(search);
+  handleServiceResponse(dictTables, res);
 }
 
 async function getDictTableById(req: Request, res: Response) {

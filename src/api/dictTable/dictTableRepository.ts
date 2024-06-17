@@ -1,16 +1,17 @@
 import { db } from '@/db';
+import { DICT_TABLE_TABLE } from '@/types';
 
 import { DictTable, DictTableUpdate, NewDictTable } from './dictTableModel';
 
 export const dictTableRepository = {
   findById: async (id: number): Promise<DictTable | null> => {
-    const result = await db.selectFrom('catalog.dict_table').where('id', '=', id).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(DICT_TABLE_TABLE).where('id', '=', id).selectAll().executeTakeFirst();
     return result ?? null;
   },
 
   findByDictionaryId: async (dictionary_id: number): Promise<DictTable | null> => {
     const result = await db
-      .selectFrom('catalog.dict_table')
+      .selectFrom(DICT_TABLE_TABLE)
       .where('dictionary_id', '=', dictionary_id)
       .selectAll()
       .executeTakeFirst();
@@ -18,12 +19,12 @@ export const dictTableRepository = {
   },
 
   findByName: async (name: string): Promise<DictTable | null> => {
-    const result = await db.selectFrom('catalog.dict_table').where('name', '=', name).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(DICT_TABLE_TABLE).where('name', '=', name).selectAll().executeTakeFirst();
     return result ?? null;
   },
 
   findAll: async (name?: string): Promise<DictTable[]> => {
-    let query = db.selectFrom('catalog.dict_table').selectAll();
+    let query = db.selectFrom(DICT_TABLE_TABLE).selectAll();
 
     if (name) {
       query = query.where('name', 'like', `%${name}%`);
@@ -34,7 +35,7 @@ export const dictTableRepository = {
 
   create: async (dictTable: NewDictTable): Promise<DictTable> => {
     return await db
-      .insertInto('catalog.dict_table')
+      .insertInto(DICT_TABLE_TABLE)
       .values({
         ...dictTable,
         last_update: new Date(),
@@ -45,7 +46,7 @@ export const dictTableRepository = {
 
   update: async (id: number, dictTable: DictTableUpdate): Promise<DictTable | null> => {
     const result = await db
-      .updateTable('catalog.dict_table')
+      .updateTable(DICT_TABLE_TABLE)
       .set({ ...dictTable, last_update: new Date() })
       .where('id', '=', id)
       .returningAll()
@@ -55,6 +56,6 @@ export const dictTableRepository = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await db.deleteFrom('catalog.dict_table').where('id', '=', id).execute();
+    await db.deleteFrom(DICT_TABLE_TABLE).where('id', '=', id).execute();
   },
 };

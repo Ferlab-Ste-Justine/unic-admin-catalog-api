@@ -115,18 +115,18 @@ describe('Analyst API endpoints', () => {
   });
 
   describe('POST /analysts', () => {
+    const newAnalyst = { ...mockAnalyst, name: 'New Analyst' };
+
     it('should create a new analyst', async () => {
       (analystService.create as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Analyst created', mockAnalyst, StatusCodes.OK)
+        new ServiceResponse(ResponseStatus.Success, 'Analyst created', newAnalyst, StatusCodes.OK)
       );
 
-      const response = await request(app).post('/analysts').send({
-        name: 'New Analyst',
-      });
+      const response = await request(app).post('/analysts').send(newAnalyst);
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(mockAnalyst);
+      expect(response.body.responseObject).toEqual(newAnalyst);
     });
 
     it('should return error for missing required fields', async () => {
@@ -147,15 +147,13 @@ describe('Analyst API endpoints', () => {
       (analystService.create as Mock).mockResolvedValue(
         new ServiceResponse(
           ResponseStatus.Failed,
-          `An Analyst with name ${mockAnalyst.name} already exists.`,
+          `An Analyst with name ${newAnalyst.name} already exists.`,
           null,
           StatusCodes.CONFLICT
         )
       );
 
-      const response = await request(app).post('/analysts').send({
-        name: 'Analyst 1',
-      });
+      const response = await request(app).post('/analysts').send(newAnalyst);
 
       expect(response.statusCode).toEqual(StatusCodes.CONFLICT);
       expect(response.body.success).toBeFalsy();
@@ -163,14 +161,14 @@ describe('Analyst API endpoints', () => {
   });
 
   describe('PUT /analysts/:id', () => {
-    it('should update an existing analyst', async () => {
-      const updatedAnalyst: Analyst = { ...mockAnalyst, name: 'Updated Analyst' };
+    const updatedAnalyst: Analyst = { ...mockAnalyst, name: 'Updated Analyst' };
 
+    it('should update an existing analyst', async () => {
       (analystService.update as Mock).mockResolvedValue(
         new ServiceResponse(ResponseStatus.Success, 'Analyst updated', updatedAnalyst, StatusCodes.OK)
       );
 
-      const response = await request(app).put('/analysts/1').send({ name: 'Updated Analyst' });
+      const response = await request(app).put('/analysts/1').send(updatedAnalyst);
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
@@ -182,16 +180,14 @@ describe('Analyst API endpoints', () => {
         new ServiceResponse(ResponseStatus.Failed, 'Analyst not found', null, StatusCodes.NOT_FOUND)
       );
 
-      const response = await request(app).put('/analysts/999').send({ name: 'Updated Analyst' });
+      const response = await request(app).put('/analysts/999').send(updatedAnalyst);
 
       expect(response.statusCode).toEqual(StatusCodes.NOT_FOUND);
       expect(response.body.success).toBeFalsy();
     });
 
     it('should return error for invalid data types', async () => {
-      const response = await request(app).put('/analysts/1').send({
-        name: 123, // Invalid data type
-      });
+      const response = await request(app).put('/analysts/1').send(invalidMockAnalyst);
 
       expect(response.statusCode).toEqual(StatusCodes.BAD_REQUEST);
       expect(response.body.success).toBeFalsy();
@@ -207,7 +203,7 @@ describe('Analyst API endpoints', () => {
         )
       );
 
-      const response = await request(app).put('/analysts/1').send({ name: 'Analyst 1' });
+      const response = await request(app).put('/analysts/1').send(mockAnalyst);
 
       expect(response.statusCode).toEqual(StatusCodes.CONFLICT);
       expect(response.body.success).toBeFalsy();

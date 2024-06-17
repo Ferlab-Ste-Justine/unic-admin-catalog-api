@@ -127,7 +127,7 @@ const handleUniquenessChecks = async (
     if (existingByCode && existingByCode.id !== id) {
       return new ServiceResponse(
         ResponseStatus.Failed,
-        `A Value Set Code with original_value "${valueSetCode.code}" already exists.`,
+        `A Value Set Code with original_value ${valueSetCode.code} already exists.`,
         null,
         StatusCodes.CONFLICT
       );

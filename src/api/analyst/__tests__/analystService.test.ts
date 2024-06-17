@@ -1,5 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
-import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
+import { describe, expect, it, Mock, vi } from 'vitest';
 
 import { mockAnalyst } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
@@ -10,7 +10,7 @@ import { analystService } from '../analystService';
 vi.mock('../analystRepository');
 
 describe('analystService', () => {
-  beforeEach(() => {
+  afterEach(() => {
     vi.clearAllMocks();
   });
 
@@ -97,25 +97,29 @@ describe('analystService', () => {
   });
 
   describe('create', () => {
+    const newAnalyst = {
+      ...mockAnalyst,
+      name: 'New Analyst',
+    };
     it('should create a new analyst', async () => {
-      (analystRepository.create as Mock).mockResolvedValueOnce(mockAnalyst);
+      (analystRepository.create as Mock).mockResolvedValueOnce(newAnalyst);
 
-      const result = await analystService.create(mockAnalyst);
+      const result = await analystService.create(newAnalyst);
 
       expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Success, 'Analyst created successfully', mockAnalyst, StatusCodes.CREATED)
+        new ServiceResponse(ResponseStatus.Success, 'Analyst created successfully', newAnalyst, StatusCodes.CREATED)
       );
     });
 
     it('should handle uniqueness check errors during create', async () => {
-      (analystRepository.findByName as Mock).mockResolvedValueOnce(mockAnalyst);
+      (analystRepository.findByName as Mock).mockResolvedValueOnce(newAnalyst);
 
-      const result = await analystService.create(mockAnalyst);
+      const result = await analystService.create(newAnalyst);
 
       expect(result).toEqual(
         new ServiceResponse(
           ResponseStatus.Failed,
-          `An Analyst with name ${mockAnalyst.name} already exists.`,
+          `An Analyst with name ${newAnalyst.name} already exists.`,
           null,
           StatusCodes.CONFLICT
         )
@@ -125,7 +129,7 @@ describe('analystService', () => {
     it('should handle errors during create', async () => {
       (analystRepository.create as Mock).mockRejectedValueOnce(new Error('Database connection error'));
 
-      const result = await analystService.create(mockAnalyst);
+      const result = await analystService.create(newAnalyst);
 
       expect(result).toEqual(
         new ServiceResponse(
@@ -140,6 +144,7 @@ describe('analystService', () => {
 
   describe('update', () => {
     const updatedAnalyst = {
+      ...mockAnalyst,
       name: 'Updated Analyst',
     };
 
@@ -154,14 +159,14 @@ describe('analystService', () => {
     });
 
     it('should handle uniqueness check errors during update', async () => {
-      (analystRepository.findByName as Mock).mockResolvedValueOnce({ ...mockAnalyst, id: 2 });
+      (analystRepository.findByName as Mock).mockResolvedValueOnce({ ...updatedAnalyst, id: 2 });
 
-      const result = await analystService.update(1, { ...updatedAnalyst, name: mockAnalyst.name });
+      const result = await analystService.update(1, updatedAnalyst);
 
       expect(result).toEqual(
         new ServiceResponse(
           ResponseStatus.Failed,
-          `An Analyst with name ${mockAnalyst.name} already exists.`,
+          `An Analyst with name ${updatedAnalyst.name} already exists.`,
           null,
           StatusCodes.CONFLICT
         )

@@ -1,17 +1,22 @@
 import { db } from '@/db';
+import { DICTIONARY_TABLE } from '@/types';
 
 import { Dictionary, DictionaryUpdate, NewDictionary } from './dictionaryModel';
 
 export const dictionaryRepository = {
+  findAll: async (): Promise<Dictionary[]> => {
+    return await db.selectFrom(DICTIONARY_TABLE).selectAll().execute();
+  },
+
   findById: async (id: number): Promise<Dictionary | null> => {
-    const result = await db.selectFrom('catalog.dictionary').where('id', '=', id).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(DICTIONARY_TABLE).where('id', '=', id).selectAll().executeTakeFirst();
 
     return result ?? null;
   },
 
   findByResourceId: async (resource_id: number): Promise<Dictionary | null> => {
     const result = await db
-      .selectFrom('catalog.dictionary')
+      .selectFrom(DICTIONARY_TABLE)
       .where('resource_id', '=', resource_id)
       .selectAll()
       .executeTakeFirst();
@@ -19,13 +24,9 @@ export const dictionaryRepository = {
     return result ?? null;
   },
 
-  findAll: async (): Promise<Dictionary[]> => {
-    return await db.selectFrom('catalog.dictionary').selectAll().execute();
-  },
-
   create: async (dictionary: NewDictionary): Promise<Dictionary> => {
     return await db
-      .insertInto('catalog.dictionary')
+      .insertInto(DICTIONARY_TABLE)
       .values({
         ...dictionary,
         last_update: new Date(),
@@ -36,7 +37,7 @@ export const dictionaryRepository = {
 
   update: async (id: number, dictionary: DictionaryUpdate): Promise<Dictionary | null> => {
     const result = await db
-      .updateTable('catalog.dictionary')
+      .updateTable(DICTIONARY_TABLE)
       .set({ ...dictionary, last_update: new Date() })
       .where('id', '=', id)
       .returningAll()
@@ -46,6 +47,6 @@ export const dictionaryRepository = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await db.deleteFrom('catalog.dictionary').where('id', '=', id).execute();
+    await db.deleteFrom(DICTIONARY_TABLE).where('id', '=', id).execute();
   },
 };

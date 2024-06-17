@@ -1,4 +1,7 @@
 import { Analyst } from '@/api/analyst/analystModel';
+import { Dictionary } from '@/api/dictionary/dictionaryModel';
+import { DictTable } from '@/api/dictTable/dictTableModel';
+import { Mapping } from '@/api/mapping/mappingModel';
 import { Resource } from '@/api/resource/resourceModel';
 import { Variable } from '@/api/variable/variableModel';
 
@@ -84,4 +87,50 @@ export const mockVariable: Variable = {
   variable_status: 'to_do',
   rolling_version: 'current',
   to_be_published: true,
+};
+
+export const invalidMockDictionary = {
+  resource_id: '21234',
+  current_version: 1,
+};
+export const mockDictionary: Dictionary = {
+  id: 12345,
+  resource_id: 101,
+  last_update: '2024-06-17T00:00:00Z' as unknown as Date,
+  current_version: 1,
+  to_be_published: true,
+};
+
+export const invalidMockDictTable = {
+  dictionary_id: '101',
+  name: 'Example Table',
+  label_en: 'Example Label EN',
+  label_fr: 'Exemple d’étiquette FR',
+  row_filter: 'status = active',
+  to_be_published: true,
+};
+
+export const mockDictTable: DictTable = {
+  id: 1,
+  last_update: '2024-06-17T00:00:00Z' as unknown as Date,
+  dictionary_id: 101,
+  name: 'Example Table',
+  entity_type: 'patient',
+  domain: 'sociodemographics',
+  label_en: 'Example Label EN',
+  label_fr: 'Exemple d’étiquette FR',
+  row_filter: 'status = active',
+  to_be_published: true,
+};
+
+export const invalidMockMapping = {
+  id: 1,
+  value_set_code_id: '101',
+};
+
+export const mockMapping: Mapping = {
+  id: 1,
+  last_update: '2024-06-17T00:00:00Z' as unknown as Date,
+  value_set_code_id: 101,
+  original_value: 'example_value',
 };
