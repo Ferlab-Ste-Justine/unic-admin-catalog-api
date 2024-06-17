@@ -1,8 +1,6 @@
 import { Analyst, AnalystSearchFields, AnalystSortColumn, AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
 import { db } from '@/db';
-import { SortOrder } from '@/types';
-
-const ANALYST_TABLE = 'catalog.analyst';
+import { ANALYST_TABLE, SortOrder } from '@/types';
 
 export const analystRepository = {
   findAll: async (

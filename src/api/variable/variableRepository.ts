@@ -1,11 +1,7 @@
 import { db } from '@/db';
-import { SortOrder } from '@/types';
+import { DICT_TABLE_TABLE, SortOrder, VALUE_SET_TABLE, VARIABLE_TABLE } from '@/types';
 
 import { NewVariable, Variable, VariableSearchFields, VariableSortColumn, VariableUpdate } from './variableModel';
-
-const VARIABLE_TABLE = 'catalog.variable';
-const DICT_TABLE_TABLE = 'catalog.dict_table';
-const VALUE_SET_TABLE = 'catalog.value_set';
 
 export const variableRepository = {
   findAll: async (

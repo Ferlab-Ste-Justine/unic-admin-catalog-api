@@ -21,3 +21,9 @@ export interface Database {
 }
 
 export type SortOrder = 'asc' | 'desc';
+
+export const VARIABLE_TABLE = 'catalog.variable';
+export const DICT_TABLE_TABLE = 'catalog.dict_table';
+export const VALUE_SET_TABLE = 'catalog.value_set';
+export const ANALYST_TABLE = 'catalog.analyst';
+export const RESOURCE_TABLE = 'catalog.resource';

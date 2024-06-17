@@ -1,10 +1,7 @@
 import { db } from '@/db';
-import { SortOrder } from '@/types';
+import { ANALYST_TABLE, RESOURCE_TABLE, SortOrder } from '@/types';
 
 import { NewResource, Resource, ResourceSearchFields, ResourceSortColumn, ResourceUpdate } from './resourceModel';
-
-const RESOURCE_TABLE = 'catalog.resource';
-const ANALYST_TABLE = 'catalog.analyst';
 
 export const resourceRepository = {
   findAll: async (
