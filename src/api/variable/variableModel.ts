@@ -38,6 +38,8 @@ export const GetVariablesSchema = z.object({
     searchValue: z.string().optional(),
     sortBy: VariableSortColumnsSchema.optional(),
     sortOrder: z.enum(['asc', 'desc']).optional(),
+    limit: z.number({ coerce: true }).min(1).max(100).default(50).optional(),
+    offset: z.number({ coerce: true }).min(0).default(0).optional(),
   }),
 });
 

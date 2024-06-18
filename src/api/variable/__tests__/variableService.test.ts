@@ -74,6 +74,16 @@ describe('variableService', () => {
         new ServiceResponse(ResponseStatus.Success, 'Variables found', [mockVariable], StatusCodes.OK)
       );
     });
+
+    it('should handle limit and offset options', async () => {
+      (variableRepository.findAll as Mock).mockResolvedValueOnce([mockVariable]);
+
+      const result = await variableService.findAll(undefined, undefined, undefined, undefined, 10, 20);
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Success, 'Variables found', [mockVariable], StatusCodes.OK)
+      );
+    });
   });
 
   describe('findById', () => {

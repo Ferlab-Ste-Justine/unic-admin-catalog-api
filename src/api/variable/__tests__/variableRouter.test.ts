@@ -75,6 +75,28 @@ describe('Variable API endpoints', () => {
       expect(response.body.success).toBeTruthy();
       expect(response.body.responseObject).toEqual(variables);
     });
+
+    it('should apply limit and offset', async () => {
+      const variables: Variable[] = [mockVariable];
+
+      (variableService.findAll as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Success, 'Variables found', variables, StatusCodes.OK)
+      );
+
+      const response = await request(app).get('/variables?limit=10&offset=20');
+
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.responseObject).toEqual(variables);
+    });
+
+    it('should return 400 for invalid limit or offset', async () => {
+      const response = await request(app).get('/variables?limit=invalid&offset=invalid');
+
+      expect(response.status).toEqual(StatusCodes.BAD_REQUEST);
+      expect(response.body.success).toBeFalsy();
+      expect(response.body.message).toContain('Invalid input');
+    });
   });
 
   describe('GET /variables/:id', () => {

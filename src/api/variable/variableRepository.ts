@@ -8,7 +8,9 @@ export const variableRepository = {
     searchField?: VariableSearchFields,
     searchValue?: string,
     sortBy?: VariableSortColumn,
-    sortOrder: SortOrder = 'asc'
+    sortOrder: SortOrder = 'asc',
+    limit: number = 50,
+    offset: number = 0
   ): Promise<Variable[]> => {
     let query = db
       .selectFrom(VARIABLE_TABLE)
@@ -24,6 +26,8 @@ export const variableRepository = {
     if (sortBy) {
       query = query.orderBy(`${VARIABLE_TABLE}.${sortBy}`, sortOrder);
     }
+
+    query = query.limit(limit).offset(offset);
 
     return await query.execute();
   },

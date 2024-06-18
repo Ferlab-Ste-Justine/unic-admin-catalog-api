@@ -102,7 +102,10 @@ async function getAllVariables(req: Request, res: Response) {
   const searchValue = req.query.searchValue as string | undefined;
   const sortBy = req.query.sortBy as VariableSortColumn | undefined;
   const sortOrder = (req.query.sortOrder as SortOrder) || 'asc';
-  const variables = await variableService.findAll(searchField, searchValue, sortBy, sortOrder);
+  const limit = req.query.limit ? Number(req.query.limit) : 50;
+  const offset = req.query.offset ? Number(req.query.offset) : 0;
+
+  const variables = await variableService.findAll(searchField, searchValue, sortBy, sortOrder, limit, offset);
   handleServiceResponse(variables, res);
 }
 

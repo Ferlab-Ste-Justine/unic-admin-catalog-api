@@ -13,10 +13,12 @@ export const variableService = {
     searchField?: VariableSearchFields,
     searchValue?: string,
     sortBy?: VariableSortColumn,
-    sortOrder: SortOrder = 'asc'
+    sortOrder: SortOrder = 'asc',
+    limit: number = 50,
+    offset: number = 0
   ): Promise<ServiceResponse<Variable[] | null>> => {
     try {
-      const variables = await variableRepository.findAll(searchField, searchValue, sortBy, sortOrder);
+      const variables = await variableRepository.findAll(searchField, searchValue, sortBy, sortOrder, limit, offset);
       if (!variables.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No Variables found', null, StatusCodes.NOT_FOUND);
       }

@@ -14,11 +14,13 @@ describe('variableRepository', () => {
   });
 
   describe('findAll', () => {
-    it('should return all variables with no search or sort', async () => {
+    it('should return all variables with no search, sort, limit, or offset', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         leftJoin: vi.fn().mockReturnThis(),
         selectAll: vi.fn().mockReturnThis(),
         select: vi.fn().mockReturnValueOnce({
+          limit: vi.fn().mockReturnThis(),
+          offset: vi.fn().mockReturnThis(),
           execute: vi.fn().mockResolvedValueOnce([mockVariable]),
         }),
       });
@@ -34,6 +36,8 @@ describe('variableRepository', () => {
         selectAll: vi.fn().mockReturnThis(),
         select: vi.fn().mockReturnValueOnce({
           where: vi.fn().mockReturnValueOnce({
+            limit: vi.fn().mockReturnThis(),
+            offset: vi.fn().mockReturnThis(),
             execute: vi.fn().mockResolvedValueOnce([mockVariable]),
           }),
         }),
@@ -50,12 +54,30 @@ describe('variableRepository', () => {
         selectAll: vi.fn().mockReturnThis(),
         select: vi.fn().mockReturnValueOnce({
           orderBy: vi.fn().mockReturnValueOnce({
+            limit: vi.fn().mockReturnThis(),
+            offset: vi.fn().mockReturnThis(),
             execute: vi.fn().mockResolvedValueOnce([mockVariable]),
           }),
         }),
       });
 
       const result = await variableRepository.findAll(undefined, undefined, 'name', 'asc');
+
+      expect(result).toEqual([mockVariable]);
+    });
+
+    it('should apply limit and offset', async () => {
+      (db.selectFrom as Mock).mockReturnValueOnce({
+        leftJoin: vi.fn().mockReturnThis(),
+        selectAll: vi.fn().mockReturnThis(),
+        select: vi.fn().mockReturnValueOnce({
+          limit: vi.fn().mockReturnThis(),
+          offset: vi.fn().mockReturnThis(),
+          execute: vi.fn().mockResolvedValueOnce([mockVariable]),
+        }),
+      });
+
+      const result = await variableRepository.findAll(undefined, undefined, undefined, undefined, 10, 20);
 
       expect(result).toEqual([mockVariable]);
     });
