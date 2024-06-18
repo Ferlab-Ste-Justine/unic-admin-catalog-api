@@ -10,7 +10,6 @@ import { valueSetCodeRepository } from '../valueSetCodeRepository';
 import { valueSetCodeService } from '../valueSetCodeService';
 
 vi.mock('../valueSetCodeRepository');
-// Mocking dependencies
 vi.mock('@/api/helpers', () => ({
   validateValueSetId: vi.fn(),
 }));

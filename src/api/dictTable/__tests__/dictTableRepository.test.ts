@@ -1,4 +1,4 @@
-import { Mock } from 'vitest'; // Adjust the import path as needed
+import { Mock } from 'vitest';
 
 import { DictTableUpdate, NewDictTable } from '@/api/dictTable/dictTableModel';
 import { mockDictTable } from '@/api/mocks';
@@ -6,11 +6,11 @@ import { db } from '@/db';
 
 import { dictTableRepository } from '../dictTableRepository';
 
-vi.mock('@/db'); // Mock the db module
+vi.mock('@/db');
 
 describe('dictTableRepository', () => {
   beforeEach(() => {
-    vi.clearAllMocks(); // Clear mock calls between tests
+    vi.clearAllMocks();
   });
 
   describe('findAll', () => {

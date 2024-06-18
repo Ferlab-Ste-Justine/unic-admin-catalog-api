@@ -1,17 +1,17 @@
 import bcrypt from 'bcrypt';
-import { Mock } from 'vitest'; // Adjust the import path as needed
+import { Mock } from 'vitest';
 
 import { db } from '@/db';
 
 import { NewUser, PublicUser, User } from '../userModel';
-import { userRepository } from '../userRepository'; // Adjust the import path as needed
+import { userRepository } from '../userRepository';
 
-vi.mock('@/db'); // Mock the db module
-vi.mock('bcrypt'); // Mock the bcrypt module
+vi.mock('@/db');
+vi.mock('bcrypt');
 
 describe('userRepository', () => {
   beforeEach(() => {
-    vi.clearAllMocks(); // Clear mock calls between tests
+    vi.clearAllMocks();
   });
 
   describe('create', () => {

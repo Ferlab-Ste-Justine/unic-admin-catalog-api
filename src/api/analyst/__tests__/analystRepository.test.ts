@@ -1,4 +1,4 @@
-import { Mock } from 'vitest'; // Adjust the import path as needed
+import { Mock } from 'vitest';
 
 import { AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
 import { mockAnalyst } from '@/api/mocks';
@@ -6,11 +6,11 @@ import { db } from '@/db';
 
 import { analystRepository } from '../analystRepository';
 
-vi.mock('@/db'); // Mock the db module
+vi.mock('@/db');
 
 describe('analystRepository', () => {
   beforeEach(() => {
-    vi.clearAllMocks(); // Clear mock calls between tests
+    vi.clearAllMocks();
   });
 
   describe('findAll', () => {

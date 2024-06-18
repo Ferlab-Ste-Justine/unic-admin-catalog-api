@@ -1,16 +1,16 @@
-import { Mock } from 'vitest'; // Adjust the import path as needed
+import { Mock } from 'vitest';
 
 import { DictionaryUpdate, NewDictionary } from '@/api/dictionary/dictionaryModel';
-import { mockDictionary } from '@/api/mocks'; // You need to create this mock if it doesn't exist
+import { mockDictionary } from '@/api/mocks';
 import { db } from '@/db';
 
 import { dictionaryRepository } from '../dictionaryRepository';
 
-vi.mock('@/db'); // Mock the db module
+vi.mock('@/db');
 
 describe('dictionaryRepository', () => {
   beforeEach(() => {
-    vi.clearAllMocks(); // Clear mock calls between tests
+    vi.clearAllMocks();
   });
 
   describe('findAll', () => {
