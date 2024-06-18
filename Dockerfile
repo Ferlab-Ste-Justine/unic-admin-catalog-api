@@ -10,7 +10,6 @@ FROM node:18.19.1-alpine AS prod-image
 WORKDIR /code
 COPY --from=build-image ./code/dist ./dist
 COPY package* ./
-COPY ./admin ./admin
 RUN npm install --production
 
 CMD [ "npm", "run", "start" ]
