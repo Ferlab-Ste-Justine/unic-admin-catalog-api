@@ -2,14 +2,20 @@ import { StatusCodes } from 'http-status-codes';
 
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
+import { SortOrder } from '@/types';
 
-import { NewValueSet, ValueSet, ValueSetUpdate } from './valueSetModel';
+import { NewValueSet, ValueSet, ValueSetSearchFields, ValueSetSortColumn, ValueSetUpdate } from './valueSetModel';
 import { valueSetRepository } from './valueSetRepository';
 
 export const valueSetService = {
-  findAll: async (name?: string): Promise<ServiceResponse<ValueSet[] | null>> => {
+  findAll: async (
+    searchField?: ValueSetSearchFields,
+    searchValue?: string,
+    sortBy?: ValueSetSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<ServiceResponse<ValueSet[] | null>> => {
     try {
-      const valueSets = await valueSetRepository.findAll(name);
+      const valueSets = await valueSetRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!valueSets.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No value sets found', null, StatusCodes.NOT_FOUND);
       }

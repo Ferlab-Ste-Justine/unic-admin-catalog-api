@@ -1,10 +1,47 @@
-import { NewValueSet, ValueSet, ValueSetUpdate } from '@/api/valueSet/valueSetModel';
+import {
+  NewValueSet,
+  ValueSet,
+  ValueSetSearchFields,
+  ValueSetSortColumn,
+  ValueSetUpdate,
+} from '@/api/valueSet/valueSetModel';
 import { db } from '@/db';
+import { SortOrder, VALUE_SET_TABLE } from '@/types';
 
 export const valueSetRepository = {
+  findAll: async (
+    searchField?: ValueSetSearchFields,
+    searchValue?: string,
+    sortBy?: ValueSetSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<ValueSet[]> => {
+    let query = db.selectFrom(VALUE_SET_TABLE).selectAll();
+
+    if (searchField && searchValue) {
+      query = query.where(`${VALUE_SET_TABLE}.${searchField}`, 'like', `%${searchValue}%`);
+    }
+
+    if (sortBy) {
+      query = query.orderBy(`${VALUE_SET_TABLE}.${sortBy}`, sortOrder);
+    }
+    return await query.execute();
+  },
+
+  findById: async (id: number): Promise<ValueSet | null> => {
+    const result = await db.selectFrom(VALUE_SET_TABLE).where('id', '=', id).selectAll().executeTakeFirst();
+
+    return result ?? null;
+  },
+
+  findByName: async (name: string): Promise<ValueSet | null> => {
+    const result = await db.selectFrom(VALUE_SET_TABLE).where('name', '=', name).selectAll().executeTakeFirst();
+
+    return result ?? null;
+  },
+
   create: async (valueSet: NewValueSet): Promise<ValueSet> => {
     return await db
-      .insertInto('catalog.value_set')
+      .insertInto(VALUE_SET_TABLE)
       .values({
         ...valueSet,
         last_update: new Date(),
@@ -13,31 +50,9 @@ export const valueSetRepository = {
       .executeTakeFirstOrThrow();
   },
 
-  findById: async (id: number): Promise<ValueSet | null> => {
-    const result = await db.selectFrom('catalog.value_set').where('id', '=', id).selectAll().executeTakeFirst();
-
-    return result ?? null;
-  },
-
-  findByName: async (name: string): Promise<ValueSet | null> => {
-    const result = await db.selectFrom('catalog.value_set').where('name', '=', name).selectAll().executeTakeFirst();
-
-    return result ?? null;
-  },
-
-  findAll: async (name?: string): Promise<ValueSet[]> => {
-    let query = db.selectFrom('catalog.value_set').selectAll();
-
-    if (name) {
-      query = query.where('name', 'like', `%${name}%`);
-    }
-
-    return await query.execute();
-  },
-
   update: async (id: number, valueSet: ValueSetUpdate): Promise<ValueSet | null> => {
     const result = await db
-      .updateTable('catalog.value_set')
+      .updateTable(VALUE_SET_TABLE)
       .set({
         ...valueSet,
         last_update: new Date(),
@@ -50,6 +65,6 @@ export const valueSetRepository = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await db.deleteFrom('catalog.value_set').where('id', '=', id).execute();
+    await db.deleteFrom(VALUE_SET_TABLE).where('id', '=', id).execute();
   },
 };

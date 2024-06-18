@@ -2,7 +2,6 @@ import bcrypt from 'bcrypt';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 
-import { resourceRepository } from '@/api/resource/resourceRepository';
 import { NewUser, PublicUser, User } from '@/api/user/userModel';
 import { userRepository } from '@/api/user/userRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
@@ -86,7 +85,7 @@ export const userService = {
 
 const handleUniquenessChecks = async (user: NewUser, id?: number): Promise<ServiceResponse<null>> => {
   if (user.email) {
-    const existingByEmail = await resourceRepository.findByCode(user.email);
+    const existingByEmail = await userRepository.findByEmail(user.email);
     if (existingByEmail && existingByEmail.id !== id) {
       return new ServiceResponse(
         ResponseStatus.Failed,

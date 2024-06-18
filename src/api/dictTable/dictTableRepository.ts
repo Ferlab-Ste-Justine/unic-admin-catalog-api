@@ -1,9 +1,27 @@
 import { db } from '@/db';
-import { DICT_TABLE_TABLE } from '@/types';
+import { DICT_TABLE_TABLE, SortOrder } from '@/types';
 
-import { DictTable, DictTableUpdate, NewDictTable } from './dictTableModel';
+import { DictTable, DictTableSearchFields, DictTableSortColumn, DictTableUpdate, NewDictTable } from './dictTableModel';
 
 export const dictTableRepository = {
+  findAll: async (
+    searchField?: DictTableSearchFields,
+    searchValue?: string,
+    sortBy?: DictTableSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<DictTable[]> => {
+    let query = db.selectFrom(DICT_TABLE_TABLE).selectAll();
+
+    if (searchField && searchValue) {
+      query = query.where(`${DICT_TABLE_TABLE}.${searchField}`, 'like', `%${searchValue}%`);
+    }
+
+    if (sortBy) {
+      query = query.orderBy(`${DICT_TABLE_TABLE}.${sortBy}`, sortOrder);
+    }
+    return await query.execute();
+  },
+
   findById: async (id: number): Promise<DictTable | null> => {
     const result = await db.selectFrom(DICT_TABLE_TABLE).where('id', '=', id).selectAll().executeTakeFirst();
     return result ?? null;
@@ -21,16 +39,6 @@ export const dictTableRepository = {
   findByName: async (name: string): Promise<DictTable | null> => {
     const result = await db.selectFrom(DICT_TABLE_TABLE).where('name', '=', name).selectAll().executeTakeFirst();
     return result ?? null;
-  },
-
-  findAll: async (name?: string): Promise<DictTable[]> => {
-    let query = db.selectFrom(DICT_TABLE_TABLE).selectAll();
-
-    if (name) {
-      query = query.where('name', 'like', `%${name}%`);
-    }
-
-    return await query.execute();
   },
 
   create: async (dictTable: NewDictTable): Promise<DictTable> => {

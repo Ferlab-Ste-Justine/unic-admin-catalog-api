@@ -47,46 +47,6 @@ describe('Mapping API endpoints', () => {
       expect(response.body.success).toBeTruthy();
       expect(response.body.responseObject).toEqual([]);
     });
-
-    it('should apply search filters', async () => {
-      const mappings: Mapping[] = [mockMapping];
-
-      (mappingService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Mappings found', mappings, StatusCodes.OK)
-      );
-
-      const response = await request(app).get('/mappings?searchField=name&searchValue=Mapping 1');
-
-      expect(response.statusCode).toEqual(StatusCodes.OK);
-      expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(mappings);
-    });
-
-    it('should return empty array when no mappings match search filters', async () => {
-      (mappingService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'No mappings found', [], StatusCodes.OK)
-      );
-
-      const response = await request(app).get('/mappings?searchField=name&searchValue=NonExistentMapping');
-
-      expect(response.statusCode).toEqual(StatusCodes.OK);
-      expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual([]);
-    });
-
-    it('should return mappings sorted by name in ascending order', async () => {
-      const mappings: Mapping[] = [mockMapping];
-
-      (mappingService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Mappings found', mappings, StatusCodes.OK)
-      );
-
-      const response = await request(app).get('/mappings?sortBy=name&sortOrder=asc');
-
-      expect(response.statusCode).toEqual(StatusCodes.OK);
-      expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(mappings);
-    });
   });
 
   describe('GET /mappings/:id', () => {

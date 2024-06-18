@@ -60,6 +60,16 @@ describe('dictTableService', () => {
         )
       );
     });
+
+    it('should handle search and sort options', async () => {
+      (dictTableRepository.findAll as Mock).mockResolvedValueOnce([mockDictTable]);
+
+      const result = await dictTableService.findAll('name', 'Dict Table 1', 'name', 'asc');
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Success, 'DictTables found', [mockDictTable], StatusCodes.OK)
+      );
+    });
   });
 
   describe('findById', () => {

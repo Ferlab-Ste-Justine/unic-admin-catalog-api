@@ -5,10 +5,13 @@ import { z } from 'zod';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { SortOrder } from '@/types';
 
 import {
   CreateDictTableSchema,
   DictTableSchema,
+  DictTableSearchFields,
+  DictTableSortColumn,
   GetDictTableSchema,
   GetDictTablesSchema,
   UpdateDictTableSchema,
@@ -95,8 +98,11 @@ export const dictTableRouter: Router = (() => {
 })();
 
 async function getAllDictTables(req: Request, res: Response) {
-  const search = req.query.name as string | undefined;
-  const dictTables = await dictTableService.findAll(search);
+  const searchField = req.query.searchField as DictTableSearchFields | undefined;
+  const searchValue = req.query.searchValue as string | undefined;
+  const sortBy = req.query.sortBy as DictTableSortColumn | undefined;
+  const sortOrder = (req.query.sortOrder as SortOrder) || 'asc';
+  const dictTables = await dictTableService.findAll(searchField, searchValue, sortBy, sortOrder);
   handleServiceResponse(dictTables, res);
 }
 

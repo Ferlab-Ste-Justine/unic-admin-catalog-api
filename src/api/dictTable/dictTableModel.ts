@@ -2,9 +2,16 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { Generated, Insertable, Selectable, Updateable } from 'kysely';
 import { z } from 'zod';
 
+import { AnalystSearchFieldsSchema, AnalystSortColumnsSchema } from '@/api/analyst/analystModel';
 import { commonValidations } from '@/common/utils/commonValidation';
 
 extendZodWithOpenApi(z);
+
+export const DictTableSearchFieldsSchema = z.enum(['name']);
+export type DictTableSearchFields = z.infer<typeof DictTableSearchFieldsSchema>;
+
+export const DictTableSortColumnsSchema = z.enum(['name']);
+export type DictTableSortColumn = z.infer<typeof DictTableSortColumnsSchema>;
 
 export const DictTableSchema = z.object({
   id: commonValidations.id,
@@ -44,7 +51,10 @@ export const DictTableSchema = z.object({
 
 export const GetDictTablesSchema = z.object({
   query: z.object({
-    name: z.string().optional(),
+    searchField: AnalystSearchFieldsSchema.optional(),
+    searchValue: z.string().optional(),
+    sortBy: AnalystSortColumnsSchema.optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });
 

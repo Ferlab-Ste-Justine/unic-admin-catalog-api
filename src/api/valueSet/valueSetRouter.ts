@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
+import { SortOrder } from '@/types';
 
 import {
   CreateValueSetSchema,
@@ -13,6 +14,8 @@ import {
   GetValueSetsSchema,
   UpdateValueSetSchema,
   ValueSetSchema,
+  ValueSetSearchFields,
+  ValueSetSortColumn,
 } from './valueSetModel';
 import { valueSetService } from './valueSetService';
 
@@ -96,7 +99,11 @@ export const valueSetRouter: Router = (() => {
 })();
 
 async function getAllValueSets(req: Request, res: Response) {
-  const valueSets = await valueSetService.findAll();
+  const searchField = req.query.searchField as ValueSetSearchFields | undefined;
+  const searchValue = req.query.searchValue as string | undefined;
+  const sortBy = req.query.sortBy as ValueSetSortColumn | undefined;
+  const sortOrder = (req.query.sortOrder as SortOrder) || 'asc';
+  const valueSets = await valueSetService.findAll(searchField, searchValue, sortBy, sortOrder);
   handleServiceResponse(valueSets, res);
 }
 

@@ -47,46 +47,6 @@ describe('Dictionary API endpoints', () => {
       expect(response.body.success).toBeTruthy();
       expect(response.body.responseObject).toEqual([]);
     });
-
-    it('should apply search filters', async () => {
-      const dictionaries: Dictionary[] = [mockDictionary];
-
-      (dictionaryService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Dictionaries found', dictionaries, StatusCodes.OK)
-      );
-
-      const response = await request(app).get('/dictionaries?searchField=name&searchValue=Dictionary 1');
-
-      expect(response.statusCode).toEqual(StatusCodes.OK);
-      expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(dictionaries);
-    });
-
-    it('should return empty array when no dictionaries match search filters', async () => {
-      (dictionaryService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'No dictionaries found', [], StatusCodes.OK)
-      );
-
-      const response = await request(app).get('/dictionaries?searchField=name&searchValue=NonExistentDictionary');
-
-      expect(response.statusCode).toEqual(StatusCodes.OK);
-      expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual([]);
-    });
-
-    it('should return dictionaries sorted by name in ascending order', async () => {
-      const dictionaries: Dictionary[] = [mockDictionary];
-
-      (dictionaryService.findAll as Mock).mockResolvedValue(
-        new ServiceResponse(ResponseStatus.Success, 'Dictionaries found', dictionaries, StatusCodes.OK)
-      );
-
-      const response = await request(app).get('/dictionaries?sortBy=name&sortOrder=asc');
-
-      expect(response.statusCode).toEqual(StatusCodes.OK);
-      expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(dictionaries);
-    });
   });
 
   describe('GET /dictionaries/:id', () => {

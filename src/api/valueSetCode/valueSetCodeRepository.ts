@@ -1,15 +1,21 @@
-import { db } from '../../db';
+import { db } from '@/db';
+import { VALUE_SET_CODE_TABLE } from '@/types';
+
 import { NewValueSetCode, ValueSetCode, ValueSetCodeUpdate } from './valueSetCodeModel';
 
 export const valueSetCodeRepository = {
+  findAll: async (): Promise<ValueSetCode[]> => {
+    return await db.selectFrom(VALUE_SET_CODE_TABLE).selectAll().execute();
+  },
+
   findById: async (id: number): Promise<ValueSetCode | null> => {
-    const result = await db.selectFrom('catalog.value_set_code').where('id', '=', id).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(VALUE_SET_CODE_TABLE).where('id', '=', id).selectAll().executeTakeFirst();
     return result ?? null;
   },
 
   findByValueSetId: async (value_set_id: number): Promise<ValueSetCode | null> => {
     const result = await db
-      .selectFrom('catalog.value_set_code')
+      .selectFrom(VALUE_SET_CODE_TABLE)
       .where('value_set_id', '=', value_set_id)
       .selectAll()
       .executeTakeFirst();
@@ -17,21 +23,13 @@ export const valueSetCodeRepository = {
   },
 
   findByCode: async (code: string): Promise<ValueSetCode | null> => {
-    const result = await db
-      .selectFrom('catalog.value_set_code')
-      .where('code', '=', code)
-      .selectAll()
-      .executeTakeFirst();
+    const result = await db.selectFrom(VALUE_SET_CODE_TABLE).where('code', '=', code).selectAll().executeTakeFirst();
     return result ?? null;
-  },
-
-  findAll: async (): Promise<ValueSetCode[]> => {
-    return await db.selectFrom('catalog.value_set_code').selectAll().execute();
   },
 
   create: async (valueSetCode: NewValueSetCode): Promise<ValueSetCode> => {
     return await db
-      .insertInto('catalog.value_set_code')
+      .insertInto(VALUE_SET_CODE_TABLE)
       .values({
         ...valueSetCode,
         last_update: new Date(),
@@ -42,7 +40,7 @@ export const valueSetCodeRepository = {
 
   update: async (id: number, valueSetCode: ValueSetCodeUpdate): Promise<ValueSetCode | null> => {
     const result = await db
-      .updateTable('catalog.value_set_code')
+      .updateTable(VALUE_SET_CODE_TABLE)
       .set({ ...valueSetCode, last_update: new Date() })
       .where('id', '=', id)
       .returningAll()
@@ -52,6 +50,6 @@ export const valueSetCodeRepository = {
   },
 
   delete: async (id: number): Promise<void> => {
-    await db.deleteFrom('catalog.value_set_code').where('id', '=', id).execute();
+    await db.deleteFrom(VALUE_SET_CODE_TABLE).where('id', '=', id).execute();
   },
 };

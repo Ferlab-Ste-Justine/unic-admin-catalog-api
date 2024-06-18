@@ -3,14 +3,20 @@ import { StatusCodes } from 'http-status-codes';
 import { validateDictionaryId } from '@/api/helpers';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
+import { SortOrder } from '@/types';
 
-import { DictTable, DictTableUpdate, NewDictTable } from './dictTableModel';
+import { DictTable, DictTableSearchFields, DictTableSortColumn, DictTableUpdate, NewDictTable } from './dictTableModel';
 import { dictTableRepository } from './dictTableRepository';
 
 export const dictTableService = {
-  findAll: async (name?: string): Promise<ServiceResponse<DictTable[] | null>> => {
+  findAll: async (
+    searchField?: DictTableSearchFields,
+    searchValue?: string,
+    sortBy?: DictTableSortColumn,
+    sortOrder: SortOrder = 'asc'
+  ): Promise<ServiceResponse<DictTable[] | null>> => {
     try {
-      const dictTables = await dictTableRepository.findAll(name);
+      const dictTables = await dictTableRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!dictTables.length) {
         return new ServiceResponse(ResponseStatus.Failed, 'No DictTables found', null, StatusCodes.NOT_FOUND);
       }

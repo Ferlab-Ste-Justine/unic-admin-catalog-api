@@ -1,76 +1,76 @@
 import { Mock } from 'vitest'; // Adjust the import path as needed
 
-import { AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
-import { mockAnalyst } from '@/api/mocks';
+import { mockValueSet } from '@/api/mocks';
+import { NewValueSet } from '@/api/valueSet/valueSetModel';
 import { db } from '@/db';
 
-import { analystRepository } from '../analystRepository';
+import { valueSetRepository } from '../valueSetRepository';
 
 vi.mock('@/db'); // Mock the db module
 
-describe('analystRepository', () => {
+describe('valueSetRepository', () => {
   beforeEach(() => {
     vi.clearAllMocks(); // Clear mock calls between tests
   });
 
   describe('findAll', () => {
-    it('should return all analysts with no search or sort', async () => {
+    it('should return all value sets with no search or sort', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         selectAll: () => ({
-          execute: vi.fn().mockResolvedValueOnce([mockAnalyst]),
+          execute: vi.fn().mockResolvedValueOnce([mockValueSet]),
         }),
       });
 
-      const result = await analystRepository.findAll();
+      const result = await valueSetRepository.findAll();
 
-      expect(result).toEqual([mockAnalyst]);
+      expect(result).toEqual([mockValueSet]);
     });
 
     it('should apply search criteria', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         selectAll: () => ({
           where: vi.fn().mockReturnValueOnce({
-            execute: vi.fn().mockResolvedValueOnce([mockAnalyst]),
+            execute: vi.fn().mockResolvedValueOnce([mockValueSet]),
           }),
         }),
       });
 
-      const result = await analystRepository.findAll('name', 'John');
+      const result = await valueSetRepository.findAll('name', 'TestValueSet');
 
-      expect(result).toEqual([mockAnalyst]);
+      expect(result).toEqual([mockValueSet]);
     });
 
     it('should apply sorting', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         selectAll: () => ({
           orderBy: vi.fn().mockReturnValueOnce({
-            execute: vi.fn().mockResolvedValueOnce([mockAnalyst]),
+            execute: vi.fn().mockResolvedValueOnce([mockValueSet]),
           }),
         }),
       });
 
-      const result = await analystRepository.findAll(undefined, undefined, 'name', 'asc');
+      const result = await valueSetRepository.findAll(undefined, undefined, 'name', 'asc');
 
-      expect(result).toEqual([mockAnalyst]);
+      expect(result).toEqual([mockValueSet]);
     });
   });
 
   describe('findById', () => {
-    it('should return an analyst by ID', async () => {
+    it('should return a value set by ID', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         where: vi.fn().mockReturnValueOnce({
           selectAll: vi.fn().mockReturnValueOnce({
-            executeTakeFirst: vi.fn().mockResolvedValueOnce(mockAnalyst),
+            executeTakeFirst: vi.fn().mockResolvedValueOnce(mockValueSet),
           }),
         }),
       });
 
-      const result = await analystRepository.findById(1);
+      const result = await valueSetRepository.findById(1);
 
-      expect(result).toEqual(mockAnalyst);
+      expect(result).toEqual(mockValueSet);
     });
 
-    it('should return null if analyst not found', async () => {
+    it('should return null if value set not found', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         where: vi.fn().mockReturnValueOnce({
           selectAll: vi.fn().mockReturnValueOnce({
@@ -79,28 +79,28 @@ describe('analystRepository', () => {
         }),
       });
 
-      const result = await analystRepository.findById(999);
+      const result = await valueSetRepository.findById(999);
 
       expect(result).toBeNull();
     });
   });
 
   describe('findByName', () => {
-    it('should return an analyst by name', async () => {
+    it('should return a value set by name', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         where: vi.fn().mockReturnValueOnce({
           selectAll: vi.fn().mockReturnValueOnce({
-            executeTakeFirst: vi.fn().mockResolvedValueOnce(mockAnalyst),
+            executeTakeFirst: vi.fn().mockResolvedValueOnce(mockValueSet),
           }),
         }),
       });
 
-      const result = await analystRepository.findByName('John Doe');
+      const result = await valueSetRepository.findByName('TestValueSet');
 
-      expect(result).toEqual(mockAnalyst);
+      expect(result).toEqual(mockValueSet);
     });
 
-    it('should return null if analyst not found by name', async () => {
+    it('should return null if value set not found by name', async () => {
       (db.selectFrom as Mock).mockReturnValueOnce({
         where: vi.fn().mockReturnValueOnce({
           selectAll: vi.fn().mockReturnValueOnce({
@@ -109,51 +109,51 @@ describe('analystRepository', () => {
         }),
       });
 
-      const result = await analystRepository.findByName('Unknown');
+      const result = await valueSetRepository.findByName('Unknown');
 
       expect(result).toBeNull();
     });
   });
 
   describe('create', () => {
-    it('should create a new analyst', async () => {
-      const newAnalyst: NewAnalyst = { name: 'Jane Doe', last_update: new Date() };
+    it('should create a new value set', async () => {
+      const newValueSet: NewValueSet = { name: 'NewValueSet', last_update: new Date() };
 
       (db.insertInto as Mock).mockReturnValueOnce({
         values: vi.fn().mockReturnValueOnce({
           returningAll: vi.fn().mockReturnValueOnce({
-            executeTakeFirstOrThrow: vi.fn().mockResolvedValueOnce(mockAnalyst),
+            executeTakeFirstOrThrow: vi.fn().mockResolvedValueOnce(mockValueSet),
           }),
         }),
       });
 
-      const result = await analystRepository.create(newAnalyst);
+      const result = await valueSetRepository.create(newValueSet);
 
-      expect(result).toEqual(mockAnalyst);
+      expect(result).toEqual(mockValueSet);
     });
   });
 
   describe('update', () => {
-    it('should update an analyst', async () => {
-      const analystUpdate: AnalystUpdate = { name: 'John Smith' };
+    it('should update a value set', async () => {
+      const valueSetUpdate = { name: 'UpdatedValueSet' };
 
       (db.updateTable as Mock).mockReturnValueOnce({
         set: vi.fn().mockReturnValueOnce({
           where: vi.fn().mockReturnValueOnce({
             returningAll: vi.fn().mockReturnValueOnce({
-              executeTakeFirst: vi.fn().mockResolvedValueOnce(mockAnalyst),
+              executeTakeFirst: vi.fn().mockResolvedValueOnce(mockValueSet),
             }),
           }),
         }),
       });
 
-      const result = await analystRepository.update(1, analystUpdate);
+      const result = await valueSetRepository.update(1, valueSetUpdate);
 
-      expect(result).toEqual(mockAnalyst);
+      expect(result).toEqual(mockValueSet);
     });
 
-    it('should return null if analyst not found for update', async () => {
-      const analystUpdate: AnalystUpdate = { name: 'John Smith' };
+    it('should return null if value set not found for update', async () => {
+      const valueSetUpdate = { name: 'UpdatedValueSet' };
 
       (db.updateTable as Mock).mockReturnValueOnce({
         set: vi.fn().mockReturnValueOnce({
@@ -165,21 +165,21 @@ describe('analystRepository', () => {
         }),
       });
 
-      const result = await analystRepository.update(999, analystUpdate);
+      const result = await valueSetRepository.update(999, valueSetUpdate);
 
       expect(result).toBeNull();
     });
   });
 
   describe('delete', () => {
-    it('should delete an analyst', async () => {
+    it('should delete a value set', async () => {
       (db.deleteFrom as Mock).mockReturnValueOnce({
         where: vi.fn().mockReturnValueOnce({
           execute: vi.fn().mockResolvedValueOnce(undefined),
         }),
       });
 
-      await analystRepository.delete(1);
+      await valueSetRepository.delete(1);
 
       expect(db.deleteFrom).toHaveBeenCalled();
     });

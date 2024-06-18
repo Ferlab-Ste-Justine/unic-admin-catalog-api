@@ -196,7 +196,7 @@ describe('variableService', () => {
     });
 
     it('should handle Dict Table ID validation errors during update', async () => {
-      (validateValueSetId as Mock).mockResolvedValueOnce(
+      (validateDictTableId as Mock).mockResolvedValueOnce(
         new ServiceResponse(ResponseStatus.Failed, 'Invalid Dict Table ID', null, StatusCodes.BAD_REQUEST)
       );
 

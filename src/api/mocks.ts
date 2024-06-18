@@ -3,6 +3,9 @@ import { Dictionary } from '@/api/dictionary/dictionaryModel';
 import { DictTable } from '@/api/dictTable/dictTableModel';
 import { Mapping } from '@/api/mapping/mappingModel';
 import { Resource } from '@/api/resource/resourceModel';
+import { User } from '@/api/user/userModel';
+import { ValueSet } from '@/api/valueSet/valueSetModel';
+import { ValueSetCode } from '@/api/valueSetCode/valueSetCodeModel';
 import { Variable } from '@/api/variable/variableModel';
 
 export const mockAnalyst: Analyst = {
@@ -133,4 +136,54 @@ export const mockMapping: Mapping = {
   last_update: '2024-06-17T00:00:00Z' as unknown as Date,
   value_set_code_id: 101,
   original_value: 'example_value',
+};
+
+export const mockUser: User = {
+  id: 1,
+  name: 'Mock User',
+  email: 'mockuser@example.com',
+  password: 'Newpassword!23',
+  created_at: new Date().toString() as unknown as Date,
+  updated_at: new Date().toString() as unknown as Date,
+};
+
+export const invalidMockUser = {
+  name: 123,
+  email: 'invalidemail',
+};
+
+export const invalidMockValueSet = {
+  id: 1,
+  last_update: '2023-06-15T00:00:00Z' as unknown as Date,
+  name: 'TestValueSet',
+  description_en: 'This is a test value set description in English.',
+  description_fr: 'Ceci est une description de jeu de valeurs de test en français.',
+  url: 1234,
+};
+
+export const mockValueSet: ValueSet = {
+  id: 1,
+  last_update: '2023-06-15T00:00:00Z' as unknown as Date,
+  name: 'TestValueSet',
+  description_en: 'This is a test value set description in English.',
+  description_fr: 'Ceci est une description de jeu de valeurs de test en français.',
+  url: 'https://example.com/valueset',
+};
+
+export const invalidMockValueSetCode = {
+  id: 1,
+  value_set_id: '1',
+  last_update: new Date().toString() as unknown as Date,
+  code: 'example_code',
+  label_fr: 'exemple étiquette',
+  label_en: 'example label',
+};
+
+export const mockValueSetCode: ValueSetCode = {
+  id: 1,
+  value_set_id: 1,
+  last_update: new Date().toString() as unknown as Date,
+  code: 'example_code',
+  label_fr: 'exemple étiquette',
+  label_en: 'example label',
 };

@@ -2,9 +2,16 @@ import { extendZodWithOpenApi } from '@asteasolutions/zod-to-openapi';
 import { Generated, Insertable, Selectable, Updateable } from 'kysely';
 import { z } from 'zod';
 
+import { AnalystSearchFieldsSchema, AnalystSortColumnsSchema } from '@/api/analyst/analystModel';
 import { commonValidations } from '@/common/utils/commonValidation';
 
 extendZodWithOpenApi(z);
+
+export const ValueSetSearchFieldsSchema = z.enum(['name']);
+export type ValueSetSearchFields = z.infer<typeof ValueSetSearchFieldsSchema>;
+
+export const ValueSetSortColumnsSchema = z.enum(['name']);
+export type ValueSetSortColumn = z.infer<typeof ValueSetSortColumnsSchema>;
 
 export const ValueSetSchema = z.object({
   id: commonValidations.id,
@@ -17,7 +24,10 @@ export const ValueSetSchema = z.object({
 
 export const GetValueSetsSchema = z.object({
   query: z.object({
-    name: z.string().optional(),
+    searchField: AnalystSearchFieldsSchema.optional(),
+    searchValue: z.string().optional(),
+    sortBy: AnalystSortColumnsSchema.optional(),
+    sortOrder: z.enum(['asc', 'desc']).optional(),
   }),
 });
 
