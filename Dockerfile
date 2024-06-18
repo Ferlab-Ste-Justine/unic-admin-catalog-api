@@ -1,15 +1,13 @@
 # First image to compile typescript to javascript
 FROM node:18.19.1-alpine AS build-image
-WORKDIR /code
+WORKDIR /app
 COPY . .
-RUN npm install
-RUN npm run build
+RUN npm ci && npm run build && npm run test
 
 # Second image, that creates an image for production
 FROM node:18.19.1-alpine AS prod-image
-WORKDIR /code
-COPY --from=build-image ./code/dist ./dist
+WORKDIR /app
+COPY --from=build-image ./app/dist ./dist
 COPY package* ./
-RUN npm install --production
-
+ENV NODE_ENV=production
 CMD [ "npm", "run", "start" ]
