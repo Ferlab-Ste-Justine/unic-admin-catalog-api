@@ -29,5 +29,5 @@ export const ANALYST_TABLE = 'catalog.analyst';
 export const RESOURCE_TABLE = 'catalog.resource';
 export const DICTIONARY_TABLE = 'catalog.dictionary';
 export const MAPPING_TABLE = 'catalog.mapping';
-
 export const VALUE_SET_CODE_TABLE = 'catalog.value_set_code';
+export const USER_TABLE = 'catalog.user';

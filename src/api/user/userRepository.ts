@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 
 import { db } from '@/db';
+import { USER_TABLE } from '@/types';
 
 import { NewUser, PublicUser, User } from './userModel';
 
@@ -10,7 +11,7 @@ export const userRepository = {
 
     const hashedPassword = await bcrypt.hash(password, 10);
     return await db
-      .insertInto('catalog.user')
+      .insertInto(USER_TABLE)
       .values({
         name,
         email,
@@ -24,7 +25,7 @@ export const userRepository = {
 
   findById: async (id: number): Promise<PublicUser | null> => {
     const result = await db
-      .selectFrom('catalog.user')
+      .selectFrom(USER_TABLE)
       .where('id', '=', id)
       .select(['id', 'name', 'email', 'created_at', 'updated_at'])
       .executeTakeFirst();
@@ -33,12 +34,12 @@ export const userRepository = {
   },
 
   findByEmail: async (email: string): Promise<User | null> => {
-    const result = await db.selectFrom('catalog.user').where('email', '=', email).selectAll().executeTakeFirst();
+    const result = await db.selectFrom(USER_TABLE).where('email', '=', email).selectAll().executeTakeFirst();
 
     return result ?? null;
   },
 
   findAll: async (): Promise<PublicUser[]> => {
-    return await db.selectFrom('catalog.user').select(['id', 'name', 'email', 'created_at', 'updated_at']).execute();
+    return await db.selectFrom(USER_TABLE).select(['id', 'name', 'email', 'created_at', 'updated_at']).execute();
   },
 };
