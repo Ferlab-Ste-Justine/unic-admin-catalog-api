@@ -6,7 +6,14 @@ import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
 
-import { GetUserSchema, LoginUserSchema, RegisterUserSchema, UserSchema } from './userModel';
+import {
+  GetUserSchema,
+  LoginUserSchema,
+  PublicUserSchema,
+  RegisterUserSchema,
+  TokenSchema,
+  UserSchema,
+} from './userModel';
 import { userService } from './userService';
 
 export const userRegistry = new OpenAPIRegistry();
@@ -19,7 +26,7 @@ export const userRouter: Router = (() => {
     method: 'get',
     path: '/users',
     tags: ['User'],
-    responses: createApiResponse(z.array(UserSchema), 'Success'),
+    responses: createApiResponse(z.array(PublicUserSchema), 'Success'),
   });
   router.get('/', verifyToken, getAllUsers);
 
@@ -28,7 +35,7 @@ export const userRouter: Router = (() => {
     path: '/users/{id}',
     tags: ['User'],
     request: { params: GetUserSchema.shape.params },
-    responses: createApiResponse(UserSchema, 'Success'),
+    responses: createApiResponse(PublicUserSchema, 'Success'),
   });
   router.get('/:id', verifyToken, validateRequest(GetUserSchema), getUserById);
 
@@ -45,7 +52,7 @@ export const userRouter: Router = (() => {
         },
       },
     },
-    responses: createApiResponse(UserSchema, 'Success'),
+    responses: createApiResponse(PublicUserSchema, 'Success'),
   });
   router.post('/register', validateRequest(RegisterUserSchema), registerUser);
 
@@ -62,7 +69,7 @@ export const userRouter: Router = (() => {
         },
       },
     },
-    responses: createApiResponse(z.object({ token: z.string() }), 'Success'),
+    responses: createApiResponse(TokenSchema, 'Success'),
   });
   router.post('/login', validateRequest(LoginUserSchema), loginUser);
 
