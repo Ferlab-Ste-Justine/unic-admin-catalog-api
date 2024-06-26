@@ -110,13 +110,13 @@ async function loginUser(req: Request, res: Response) {
   if (loginResponse.success && loginResponse.responseObject) {
     res.cookie('accessToken', loginResponse.responseObject.accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
     });
     res.cookie('refreshToken', loginResponse.responseObject.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
     });
 
     return handleServiceResponse(
@@ -146,13 +146,13 @@ async function refreshToken(req: Request, res: Response) {
   if (refreshResponse.success && refreshResponse.responseObject) {
     res.cookie('accessToken', refreshResponse.responseObject.accessToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
     });
     res.cookie('refreshToken', refreshResponse.responseObject.refreshToken, {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
     });
 
     return handleServiceResponse(
@@ -182,14 +182,14 @@ async function logoutUser(req: Request, res: Response) {
   if (logoutResponse.success) {
     res.clearCookie('refreshToken', {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
     });
 
     res.clearCookie('accessToken', {
       httpOnly: true,
-      secure: false,
-      sameSite: 'lax',
+      secure: true,
+      sameSite: 'strict',
     });
   }
 
