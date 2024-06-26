@@ -147,12 +147,12 @@ async function refreshToken(req: Request, res: Response) {
     res.cookie('accessToken', refreshResponse.responseObject.accessToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
     res.cookie('refreshToken', refreshResponse.responseObject.refreshToken, {
       httpOnly: true,
       secure: false,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
 
     return handleServiceResponse(
