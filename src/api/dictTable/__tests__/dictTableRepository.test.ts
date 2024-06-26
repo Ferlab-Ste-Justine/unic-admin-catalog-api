@@ -1,10 +1,9 @@
 import { Mock } from 'vitest';
 
 import { DictTableUpdate, NewDictTable } from '@/api/dictTable/dictTableModel';
+import { dictTableRepository } from '@/api/dictTable/dictTableRepository';
 import { mockDictTable } from '@/api/mocks';
 import { db } from '@/db';
-
-import { dictTableRepository } from '../dictTableRepository';
 
 vi.mock('@/db');
 

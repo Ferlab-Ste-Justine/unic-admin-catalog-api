@@ -1,13 +1,14 @@
 import bcrypt from 'bcrypt';
 import { StatusCodes } from 'http-status-codes';
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 
+import { generateAccessToken, generateRefreshToken } from '@/api/helpers';
 import { NewUser, PublicUser, User } from '@/api/user/userModel';
 import { userRepository } from '@/api/user/userRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
+import { REFRESH_TOKEN_SECRET } from '@/constants';
 import { logger } from '@/server';
-
-const JWT_SECRET = process.env.JWT_SECRET as string;
+import { JwtTokens, TokenPayload } from '@/types';
 
 export const userService = {
   findAll: async (): Promise<ServiceResponse<PublicUser[] | null>> => {
@@ -59,7 +60,7 @@ export const userService = {
     }
   },
 
-  login: async (email: string, password: string): Promise<ServiceResponse<string | null>> => {
+  login: async (email: string, password: string): Promise<ServiceResponse<JwtTokens | null>> => {
     try {
       const user = await userRepository.findByEmail(email);
 
@@ -73,10 +74,57 @@ export const userService = {
         return new ServiceResponse(ResponseStatus.Failed, 'Invalid credentials', null, StatusCodes.BAD_REQUEST);
       }
 
-      const token = jwt.sign({ userId: user.id }, JWT_SECRET, { expiresIn: '1h' });
-      return new ServiceResponse<string>(ResponseStatus.Success, 'Login successful', token, StatusCodes.OK);
+      const accessToken = generateAccessToken(user.id);
+      const refreshToken = generateRefreshToken(user.id);
+
+      await userRepository.saveRefreshToken(user.id, refreshToken);
+
+      return new ServiceResponse<JwtTokens>(
+        ResponseStatus.Success,
+        'Login successful',
+        { accessToken, refreshToken },
+        StatusCodes.OK
+      );
     } catch (error) {
       const errorMessage = `Error logging in: ${(error as Error).message}`;
+      logger.error(errorMessage);
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  },
+
+  refresh: async (refreshToken: string): Promise<ServiceResponse<JwtTokens | null>> => {
+    try {
+      const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as TokenPayload;
+      const storedToken = await userRepository.findRefreshToken(refreshToken);
+
+      if (!storedToken || storedToken.token !== refreshToken) {
+        return new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED);
+      }
+
+      const newAccessToken = generateAccessToken(decoded.user_id);
+      const newRefreshToken = generateRefreshToken(decoded.user_id);
+      await userRepository.saveRefreshToken(decoded.user_id, newRefreshToken);
+
+      return new ServiceResponse<JwtTokens>(
+        ResponseStatus.Success,
+        'Token refreshed successfully',
+        { accessToken: newAccessToken, refreshToken: newRefreshToken },
+        StatusCodes.OK
+      );
+    } catch (error) {
+      const errorMessage = `Error refreshing token: ${(error as Error).message}`;
+      logger.error(errorMessage);
+      return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
+    }
+  },
+
+  logout: async (refreshToken: string): Promise<ServiceResponse<null>> => {
+    try {
+      const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as JwtPayload;
+      await userRepository.deleteRefreshToken(decoded.user_id);
+      return new ServiceResponse<null>(ResponseStatus.Success, 'Logout successful', null, StatusCodes.OK);
+    } catch (error) {
+      const errorMessage = `Error logging out: ${(error as Error).message}`;
       logger.error(errorMessage);
       return new ServiceResponse(ResponseStatus.Failed, errorMessage, null, StatusCodes.INTERNAL_SERVER_ERROR);
     }

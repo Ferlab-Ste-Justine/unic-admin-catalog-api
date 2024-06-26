@@ -4,13 +4,12 @@ import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
 import { invalidMockVariable, mockVariable } from '@/api/mocks';
+import { Variable } from '@/api/variable/variableModel';
+import { variableService } from '@/api/variable/variableService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { Variable } from '../variableModel';
-import { variableService } from '../variableService';
-
-vi.mock('../variableService');
+vi.mock('@/api/variable/variableService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

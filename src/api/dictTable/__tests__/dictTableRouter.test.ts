@@ -3,14 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
+import { DictTable } from '@/api/dictTable/dictTableModel';
+import { dictTableService } from '@/api/dictTable/dictTableService';
 import { invalidMockDictTable, mockDictTable } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { DictTable } from '../dictTableModel';
-import { dictTableService } from '../dictTableService';
-
-vi.mock('../dictTableService');
+vi.mock('@/api/dictTable/dictTableService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

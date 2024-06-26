@@ -2,9 +2,8 @@ import { Mock } from 'vitest';
 
 import { mockValueSet } from '@/api/mocks';
 import { NewValueSet } from '@/api/valueSet/valueSetModel';
+import { valueSetRepository } from '@/api/valueSet/valueSetRepository';
 import { db } from '@/db';
-
-import { valueSetRepository } from '../valueSetRepository';
 
 vi.mock('@/db');
 

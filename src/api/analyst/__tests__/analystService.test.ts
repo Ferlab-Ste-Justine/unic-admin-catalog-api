@@ -1,13 +1,12 @@
 import { StatusCodes } from 'http-status-codes';
 import { describe, expect, it, Mock, vi } from 'vitest';
 
+import { analystRepository } from '@/api/analyst/analystRepository';
+import { analystService } from '@/api/analyst/analystService';
 import { mockAnalyst } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
-import { analystRepository } from '../analystRepository';
-import { analystService } from '../analystService';
-
-vi.mock('../analystRepository');
+vi.mock('@/api/analyst/analystRepository');
 
 describe('analystService', () => {
   afterEach(() => {

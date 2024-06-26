@@ -3,14 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
+import { Dictionary } from '@/api/dictionary/dictionaryModel';
+import { dictionaryService } from '@/api/dictionary/dictionaryService';
 import { invalidMockDictionary, mockDictionary } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { Dictionary } from '../dictionaryModel';
-import { dictionaryService } from '../dictionaryService';
-
-vi.mock('../dictionaryService');
+vi.mock('@/api/dictionary/dictionaryService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

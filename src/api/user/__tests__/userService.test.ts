@@ -4,14 +4,13 @@ import jwt from 'jsonwebtoken';
 import { describe, expect, it, Mock, vi } from 'vitest';
 
 import { mockUser } from '@/api/mocks';
+import { userRepository } from '@/api/user/userRepository';
+import { userService } from '@/api/user/userService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
-
-import { userRepository } from '../userRepository';
-import { userService } from '../userService';
 
 vi.mock('bcrypt');
 vi.mock('jsonwebtoken');
-vi.mock('../userRepository');
+vi.mock('@/api/user/userRepository');
 
 describe('userService', () => {
   afterEach(() => {
@@ -143,16 +142,28 @@ describe('userService', () => {
       email,
       password: '$2b$10$9yP/l/ZC.PVGDFR3cFv1jOpbp5C0IMz3FY/JYZ6VhTQLkvhlv3Z6W',
     };
-    const token = 'token';
+    const newAccessToken = 'newAccessToken';
+    const newRefreshToken = 'newRefreshToken';
 
     it('should log in a user', async () => {
       (userRepository.findByEmail as Mock).mockResolvedValueOnce(user);
       (bcrypt.compare as Mock).mockResolvedValueOnce(true);
-      (jwt.sign as Mock).mockReturnValueOnce(token);
+      (jwt.sign as Mock).mockReturnValueOnce(newAccessToken);
+      (jwt.sign as Mock).mockReturnValueOnce(newRefreshToken);
 
       const result = await userService.login(email, password);
 
-      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'Login successful', token, StatusCodes.OK));
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Success,
+          'Login successful',
+          {
+            accessToken: newAccessToken,
+            refreshToken: newRefreshToken,
+          },
+          StatusCodes.OK
+        )
+      );
     });
 
     it('should return not found if user is not found during login', async () => {
@@ -184,6 +195,131 @@ describe('userService', () => {
         new ServiceResponse(
           ResponseStatus.Failed,
           `Error logging in: ${errorMessage}`,
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+    });
+  });
+
+  describe('refresh', () => {
+    it('should refresh a token', async () => {
+      const refreshToken = 'refreshToken';
+      const newAccessToken = 'newAccessToken';
+      const newRefreshToken = 'newRefreshToken';
+
+      const decodedToken = { user_id: 1 };
+      (jwt.verify as Mock).mockReturnValueOnce(decodedToken);
+      (userRepository.findRefreshToken as Mock).mockResolvedValueOnce({ token: refreshToken });
+      (jwt.sign as Mock).mockReturnValueOnce(newAccessToken);
+      (jwt.sign as Mock).mockReturnValueOnce(newRefreshToken);
+
+      const result = await userService.refresh(refreshToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Success,
+          'Token refreshed successfully',
+          { accessToken: newAccessToken, refreshToken: newRefreshToken },
+          StatusCodes.OK
+        )
+      );
+    });
+
+    it('should handle invalid refresh token', async () => {
+      const refreshToken = 'invalidToken';
+
+      (jwt.verify as Mock).mockImplementationOnce(() => {
+        throw new Error('Invalid token');
+      });
+
+      const result = await userService.refresh(refreshToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Failed,
+          'Error refreshing token: Invalid token',
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+    });
+
+    it('should handle missing refresh token', async () => {
+      const refreshToken = 'invalidToken';
+
+      (jwt.verify as Mock).mockReturnValueOnce({ user_id: 1 });
+      (userRepository.findRefreshToken as Mock).mockResolvedValueOnce(undefined);
+
+      const result = await userService.refresh(refreshToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED)
+      );
+    });
+
+    it('should handle not matching refresh token', async () => {
+      const refreshToken = 'invalidToken';
+
+      (jwt.verify as Mock).mockReturnValueOnce({ user_id: 1 });
+      (userRepository.findRefreshToken as Mock).mockResolvedValueOnce({ token: 'notMatchingToken' });
+
+      const result = await userService.refresh(refreshToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED)
+      );
+    });
+
+    it('should handle errors during token refresh', async () => {
+      const refreshToken = 'refreshToken';
+      const errorMessage = 'Database connection error';
+
+      (jwt.verify as Mock).mockReturnValueOnce({ user_id: 1 });
+      (userRepository.findRefreshToken as Mock).mockResolvedValueOnce({ token: refreshToken });
+      (jwt.sign as Mock).mockImplementationOnce(() => {
+        throw new Error(errorMessage);
+      });
+
+      const result = await userService.refresh(refreshToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Failed,
+          `Error refreshing token: ${errorMessage}`,
+          null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+    });
+  });
+
+  describe('logout', () => {
+    it('should log out a user', async () => {
+      const refreshToken = 'refreshToken';
+      const decodedToken = { user_id: 1 };
+
+      (jwt.verify as Mock).mockReturnValueOnce(decodedToken);
+
+      const result = await userService.logout(refreshToken);
+
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'Logout successful', null, StatusCodes.OK));
+    });
+
+    it('should handle errors during logout', async () => {
+      const refreshToken = 'refreshToken';
+      const errorMessage = 'Database connection error';
+
+      (jwt.verify as Mock).mockImplementationOnce(() => {
+        throw new Error(errorMessage);
+      });
+
+      const result = await userService.logout(refreshToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Failed,
+          `Error logging out: ${errorMessage}`,
           null,
           StatusCodes.INTERNAL_SERVER_ERROR
         )

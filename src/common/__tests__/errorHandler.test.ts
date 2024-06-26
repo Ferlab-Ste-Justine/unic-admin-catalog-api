@@ -5,11 +5,9 @@ import request from 'supertest';
 import errorHandler from '@/common/middleware/errorHandler';
 
 describe('Error Handler Middleware', () => {
-  let app: Express;
+  const app: Express = express();
 
   beforeAll(() => {
-    app = express();
-
     app.get('/error', () => {
       throw new Error('Test error');
     });

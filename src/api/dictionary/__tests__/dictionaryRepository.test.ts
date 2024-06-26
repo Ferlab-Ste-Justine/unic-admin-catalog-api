@@ -1,10 +1,9 @@
 import { Mock } from 'vitest';
 
 import { DictionaryUpdate, NewDictionary } from '@/api/dictionary/dictionaryModel';
+import { dictionaryRepository } from '@/api/dictionary/dictionaryRepository';
 import { mockDictionary } from '@/api/mocks';
 import { db } from '@/db';
-
-import { dictionaryRepository } from '../dictionaryRepository';
 
 vi.mock('@/db');
 

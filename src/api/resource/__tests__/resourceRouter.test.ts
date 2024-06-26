@@ -4,13 +4,12 @@ import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
 import { invalidMockResource, mockResource } from '@/api/mocks';
+import { Resource } from '@/api/resource/resourceModel';
+import { resourceService } from '@/api/resource/resourceService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { Resource } from '../resourceModel';
-import { resourceService } from '../resourceService';
-
-vi.mock('../resourceService');
+vi.mock('@/api/resource/resourceService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

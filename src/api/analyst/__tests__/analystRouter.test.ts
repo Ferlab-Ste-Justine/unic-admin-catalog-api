@@ -3,14 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
+import { Analyst } from '@/api/analyst/analystModel';
+import { analystService } from '@/api/analyst/analystService';
 import { invalidMockAnalyst, mockAnalyst } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { Analyst } from '../analystModel';
-import { analystService } from '../analystService';
-
-vi.mock('../analystService');
+vi.mock('@/api/analyst/analystService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

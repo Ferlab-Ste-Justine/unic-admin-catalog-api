@@ -1,10 +1,9 @@
 import { Mock } from 'vitest';
 
 import { AnalystUpdate, NewAnalyst } from '@/api/analyst/analystModel';
+import { analystRepository } from '@/api/analyst/analystRepository';
 import { mockAnalyst } from '@/api/mocks';
 import { db } from '@/db';
-
-import { analystRepository } from '../analystRepository';
 
 vi.mock('@/db');
 

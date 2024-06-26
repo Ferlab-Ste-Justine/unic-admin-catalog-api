@@ -17,8 +17,6 @@ export const UserSchema = z.object({
 
 export const PublicUserSchema = UserSchema.omit({ password: true });
 
-export const TokenSchema = z.object({ token: z.string() });
-
 export const GetUserSchema = z.object({
   params: z.object({ id: commonValidations.id }),
 });
@@ -51,3 +49,15 @@ export type User = Selectable<UserTable>;
 export type PublicUser = Omit<User, 'password'>;
 export type NewUser = Insertable<UserTable>;
 export type UserUpdate = Updateable<UserTable>;
+
+export interface RefreshTokenTable {
+  id: Generated<number>;
+  user_id: number;
+  token: string;
+  created_at: ColumnType<Date, Date | undefined, never>;
+  expires_at: ColumnType<Date, Date | undefined, never>;
+}
+
+export type RefreshToken = Selectable<RefreshTokenTable>;
+export type NewRefreshToken = Insertable<RefreshTokenTable>;
+export type RefreshTokenUpdate = Updateable<RefreshTokenTable>;

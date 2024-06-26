@@ -4,13 +4,12 @@ import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
 import { invalidMockUser, mockUser } from '@/api/mocks';
+import { User } from '@/api/user/userModel';
+import { userService } from '@/api/user/userService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { User } from '../userModel';
-import { userService } from '../userService';
-
-vi.mock('../userService');
+vi.mock('@/api/user/userService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),
@@ -115,7 +114,7 @@ describe('User API endpoints', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(loginResponse);
+      expect(response.body.responseObject).toEqual(null);
     });
 
     it('should return error for invalid credentials', async () => {
@@ -124,6 +123,85 @@ describe('User API endpoints', () => {
       );
 
       const response = await request(app).post('/users/login').send(loginCredentials);
+
+      expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
+      expect(response.body.success).toBeFalsy();
+    });
+  });
+
+  describe('POST /users/refresh', () => {
+    it('should refresh access token', async () => {
+      const refreshResponse = {
+        accessToken: 'newAccessToken',
+        refreshToken: 'newRefreshToken',
+      };
+
+      (userService.refresh as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Success, 'Token refreshed', refreshResponse, StatusCodes.OK)
+      );
+
+      const response = await request(app)
+        .post('/users/refresh')
+        .set('Cookie', ['refreshToken=validRefreshToken'])
+        .send();
+
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.responseObject).toEqual(null);
+    });
+
+    it('should return error for invalid refresh token', async () => {
+      (userService.refresh as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED)
+      );
+
+      const response = await request(app).post('/users/refresh').send();
+
+      expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
+      expect(response.body.success).toBeFalsy();
+    });
+    it('should return error if refresh failed', async () => {
+      (userService.refresh as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Error refreshing token', null, StatusCodes.INTERNAL_SERVER_ERROR)
+      );
+
+      const response = await request(app)
+        .post('/users/refresh')
+        .set('Cookie', ['refreshToken=validRefreshToken'])
+        .send();
+
+      expect(response.statusCode).toEqual(StatusCodes.INTERNAL_SERVER_ERROR);
+      expect(response.body.success).toBeFalsy();
+      expect(response.body.message).toBe('Error refreshing token');
+    });
+  });
+
+  describe('POST /users/logout', () => {
+    it('should log out a user', async () => {
+      const logoutResponse = new ServiceResponse(
+        ResponseStatus.Success,
+        'User logged out successfully',
+        null,
+        StatusCodes.OK
+      );
+
+      (userService.logout as Mock).mockResolvedValue(logoutResponse);
+
+      const response = await request(app)
+        .post('/users/logout')
+        .set('Cookie', ['refreshToken=validRefreshToken'])
+        .send();
+
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body.success).toBeTruthy();
+    });
+
+    it('should return error for invalid refresh token on logout', async () => {
+      (userService.logout as Mock).mockResolvedValue(
+        new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED)
+      );
+
+      const response = await request(app).post('/users/logout').send();
 
       expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
       expect(response.body.success).toBeFalsy();

@@ -4,12 +4,11 @@ import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
 import { invalidMockValueSet, mockValueSet } from '@/api/mocks';
+import { valueSetService } from '@/api/valueSet/valueSetService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { valueSetService } from '../valueSetService';
-
-vi.mock('../valueSetService');
+vi.mock('@/api/valueSet/valueSetService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

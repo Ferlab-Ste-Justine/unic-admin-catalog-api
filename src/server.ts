@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import express, { Express } from 'express';
 import helmet from 'helmet';
@@ -28,6 +29,7 @@ app.set('trust proxy', true);
 // Middlewares
 app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
 app.use(helmet());
+app.use(cookieParser());
 
 // Request logging
 app.use(requestLogger);

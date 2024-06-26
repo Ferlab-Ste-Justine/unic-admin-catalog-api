@@ -1,9 +1,9 @@
 import bcrypt from 'bcrypt';
 
 import { db } from '@/db';
-import { USER_TABLE } from '@/types';
+import { REFRESH_TOKEN_TABLE, USER_TABLE } from '@/types';
 
-import { NewUser, PublicUser, User } from './userModel';
+import { NewUser, PublicUser, RefreshToken, User } from './userModel';
 
 export const userRepository = {
   create: async (user: NewUser): Promise<PublicUser> => {
@@ -41,5 +41,26 @@ export const userRepository = {
 
   findAll: async (): Promise<PublicUser[]> => {
     return await db.selectFrom(USER_TABLE).select(['id', 'name', 'email', 'created_at', 'updated_at']).execute();
+  },
+
+  saveRefreshToken: async (user_id: number, token: string): Promise<void> => {
+    await db
+      .insertInto(REFRESH_TOKEN_TABLE)
+      .values({
+        user_id,
+        token,
+        expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+      })
+      .execute();
+  },
+
+  findRefreshToken: async (token: string): Promise<RefreshToken | null> => {
+    const result = await db.selectFrom(REFRESH_TOKEN_TABLE).where('token', '=', token).selectAll().executeTakeFirst();
+
+    return result ?? null;
+  },
+
+  deleteRefreshToken: async (user_id: number): Promise<void> => {
+    await db.deleteFrom(REFRESH_TOKEN_TABLE).where('user_id', '=', user_id).execute();
   },
 };

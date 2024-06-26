@@ -1,10 +1,9 @@
 import { Mock } from 'vitest';
 
 import { MappingUpdate, NewMapping } from '@/api/mapping/mappingModel';
+import { mappingRepository } from '@/api/mapping/mappingRepository';
 import { mockMapping } from '@/api/mocks';
 import { db } from '@/db';
-
-import { mappingRepository } from '../mappingRepository';
 
 vi.mock('@/db');
 

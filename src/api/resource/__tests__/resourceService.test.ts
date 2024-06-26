@@ -4,12 +4,11 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { validateAnalystId } from '@/api/helpers';
 import { mockResource } from '@/api/mocks';
 import { Resource } from '@/api/resource/resourceModel';
+import { resourceRepository } from '@/api/resource/resourceRepository';
+import { resourceService } from '@/api/resource/resourceService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
-import { resourceRepository } from '../resourceRepository';
-import { resourceService } from '../resourceService';
-
-vi.mock('../resourceRepository');
+vi.mock('@/api/resource/resourceRepository');
 vi.mock('@/api/helpers', () => ({
   validateAnalystId: vi.fn(),
 }));

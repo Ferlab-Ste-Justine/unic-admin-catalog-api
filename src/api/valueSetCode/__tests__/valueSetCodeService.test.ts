@@ -3,13 +3,12 @@ import { afterEach, beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { validateValueSetId } from '@/api/helpers';
 import { mockValueSetCode } from '@/api/mocks';
+import { ValueSetCode } from '@/api/valueSetCode/valueSetCodeModel';
+import { valueSetCodeRepository } from '@/api/valueSetCode/valueSetCodeRepository';
+import { valueSetCodeService } from '@/api/valueSetCode/valueSetCodeService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
-import { ValueSetCode } from '../valueSetCodeModel';
-import { valueSetCodeRepository } from '../valueSetCodeRepository';
-import { valueSetCodeService } from '../valueSetCodeService';
-
-vi.mock('../valueSetCodeRepository');
+vi.mock('@/api/valueSetCode/valueSetCodeRepository');
 vi.mock('@/api/helpers', () => ({
   validateValueSetId: vi.fn(),
 }));

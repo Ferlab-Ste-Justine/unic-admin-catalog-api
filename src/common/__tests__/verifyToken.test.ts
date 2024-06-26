@@ -1,3 +1,4 @@
+import cookieParser from 'cookie-parser';
 import express, { Request, Response } from 'express';
 import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
@@ -10,8 +11,9 @@ vi.mock('jsonwebtoken');
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
-const protectedRoute = (req: Request, res: Response) => {
+const protectedRoute = (_req: Request, res: Response) => {
   res.status(StatusCodes.OK).send('Protected route accessed');
 };
 
@@ -31,35 +33,39 @@ describe('verifyToken middleware', () => {
     vi.clearAllMocks();
   });
 
-  it('should return 401 if no authorization header is present', async () => {
+  it('should return 401 if no accessToken cookie is present', async () => {
     const response = await request(app).get('/protected');
 
     expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
-    expect(response.text).toBe('Access denied. No token provided.');
+    expect(response.body.success).toBeFalsy();
+    expect(response.body.message).toBe('Access denied. No token provided.');
   });
 
-  it('should return 401 if authorization header is present but no token provided', async () => {
-    const response = await request(app).get('/protected').set('Authorization', 'Bearer ');
+  it('should return 401 if accessToken cookie is present but no token provided', async () => {
+    const response = await request(app).get('/protected').set('Cookie', ['accessToken=']);
 
     expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
-    expect(response.text).toBe('Access denied. No token provided.');
+    expect(response.body.success).toBeFalsy();
+    expect(response.body.message).toBe('Access denied. No token provided.');
   });
 
-  it('should return 400 if the token is invalid', async () => {
+  it('should return 401 if the token is invalid', async () => {
     (jwt.verify as Mock).mockImplementationOnce(() => {
       throw new Error('Invalid token');
     });
 
-    const response = await request(app).get('/protected').set('Authorization', 'Bearer invalid_token');
+    const response = await request(app).get('/protected').set('Cookie', ['accessToken=invalid_token']);
 
-    expect(response.status).toBe(StatusCodes.BAD_REQUEST);
-    expect(response.text).toBe('Invalid token.');
+    expect(response.status).toBe(StatusCodes.UNAUTHORIZED);
+    expect(response.body.success).toBeFalsy();
+    expect(response.body.message).toBe('Error verifying token: Invalid token');
   });
 
   it('should call next if the token is valid', async () => {
-    (jwt.verify as Mock).mockReturnValueOnce({ id: 1 });
+    const mockToken = jwt.sign({ user_id: 1 }, JWT_SECRET);
+    (jwt.verify as Mock).mockReturnValueOnce({ user_id: 1 });
 
-    const response = await request(app).get('/protected').set('Authorization', 'Bearer valid_token');
+    const response = await request(app).get('/protected').set('Cookie', `accessToken=${mockToken}`);
 
     expect(response.status).toBe(StatusCodes.OK);
     expect(response.text).toBe('Protected route accessed');

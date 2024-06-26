@@ -1,19 +1,14 @@
 import { OpenAPIRegistry } from '@asteasolutions/zod-to-openapi';
 import express, { Request, Response, Router } from 'express';
+import { StatusCodes } from 'http-status-codes';
 import { z } from 'zod';
 
 import { createApiResponse } from '@/api-docs/openAPIResponseBuilders';
 import verifyToken from '@/common/middleware/verifyToken';
+import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
 
-import {
-  GetUserSchema,
-  LoginUserSchema,
-  PublicUserSchema,
-  RegisterUserSchema,
-  TokenSchema,
-  UserSchema,
-} from './userModel';
+import { GetUserSchema, LoginUserSchema, PublicUserSchema, RegisterUserSchema, UserSchema } from './userModel';
 import { userService } from './userService';
 
 export const userRegistry = new OpenAPIRegistry();
@@ -69,9 +64,25 @@ export const userRouter: Router = (() => {
         },
       },
     },
-    responses: createApiResponse(TokenSchema, 'Success'),
+    responses: createApiResponse(z.null(), 'Success'),
   });
   router.post('/login', validateRequest(LoginUserSchema), loginUser);
+
+  userRegistry.registerPath({
+    method: 'post',
+    path: '/users/refresh',
+    tags: ['User'],
+    responses: createApiResponse(z.null(), 'Success'),
+  });
+  router.post('/refresh', refreshToken);
+
+  userRegistry.registerPath({
+    method: 'post',
+    path: '/users/logout',
+    tags: ['User'],
+    responses: createApiResponse(z.null(), 'Success'),
+  });
+  router.post('/logout', logoutUser);
 
   return router;
 })();
@@ -95,5 +106,92 @@ async function registerUser(req: Request, res: Response) {
 async function loginUser(req: Request, res: Response) {
   const { email, password } = req.body;
   const loginResponse = await userService.login(email, password);
+
+  if (loginResponse.success && loginResponse.responseObject) {
+    res.cookie('accessToken', loginResponse.responseObject.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    res.cookie('refreshToken', loginResponse.responseObject.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    return handleServiceResponse(
+      {
+        ...loginResponse,
+        responseObject: null,
+      },
+      res
+    );
+  }
+
   handleServiceResponse(loginResponse, res);
+}
+
+async function refreshToken(req: Request, res: Response) {
+  const refreshToken = req.cookies['refreshToken'];
+
+  if (!refreshToken) {
+    return handleServiceResponse(
+      new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED),
+      res
+    );
+  }
+
+  const refreshResponse = await userService.refresh(refreshToken);
+
+  if (refreshResponse.success && refreshResponse.responseObject) {
+    res.cookie('accessToken', refreshResponse.responseObject.accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+    res.cookie('refreshToken', refreshResponse.responseObject.refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    return handleServiceResponse(
+      {
+        ...refreshResponse,
+        responseObject: null,
+      },
+      res
+    );
+  }
+
+  handleServiceResponse(refreshResponse, res);
+}
+
+async function logoutUser(req: Request, res: Response) {
+  const refreshToken = req.cookies['refreshToken'];
+
+  if (!refreshToken) {
+    return handleServiceResponse(
+      new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED),
+      res
+    );
+  }
+
+  const logoutResponse = await userService.logout(refreshToken);
+
+  if (logoutResponse.success) {
+    res.clearCookie('refreshToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+
+    res.clearCookie('accessToken', {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'strict',
+    });
+  }
+
+  handleServiceResponse(logoutResponse, res);
 }

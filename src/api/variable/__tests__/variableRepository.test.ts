@@ -2,9 +2,8 @@ import { Mock } from 'vitest';
 
 import { mockVariable } from '@/api/mocks';
 import { NewVariable, VariableUpdate } from '@/api/variable/variableModel';
+import { variableRepository } from '@/api/variable/variableRepository';
 import { db } from '@/db';
-
-import { variableRepository } from '../variableRepository';
 
 vi.mock('@/db');
 

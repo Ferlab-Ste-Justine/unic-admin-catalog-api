@@ -1,14 +1,13 @@
 import { StatusCodes } from 'http-status-codes';
 import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
+import { dictTableRepository } from '@/api/dictTable/dictTableRepository';
+import { dictTableService } from '@/api/dictTable/dictTableService';
 import { validateDictionaryId } from '@/api/helpers';
 import { mockDictTable } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
-import { dictTableRepository } from '../dictTableRepository';
-import { dictTableService } from '../dictTableService';
-
-vi.mock('../dictTableRepository');
+vi.mock('@/api/dictTable/dictTableRepository');
 
 vi.mock('@/api/helpers', () => ({
   validateDictionaryId: vi.fn(),

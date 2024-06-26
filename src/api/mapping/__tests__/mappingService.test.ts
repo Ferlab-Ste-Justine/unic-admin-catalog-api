@@ -3,13 +3,12 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 
 import { validateValueSetCodeId } from '@/api/helpers';
 import { Mapping } from '@/api/mapping/mappingModel';
+import { mappingRepository } from '@/api/mapping/mappingRepository';
+import { mappingService } from '@/api/mapping/mappingService';
 import { mockMapping } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
-import { mappingRepository } from '../mappingRepository';
-import { mappingService } from '../mappingService';
-
-vi.mock('../mappingRepository');
+vi.mock('@/api/mapping/mappingRepository');
 
 vi.mock('@/api/helpers', () => ({
   validateValueSetCodeId: vi.fn(),

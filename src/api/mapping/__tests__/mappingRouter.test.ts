@@ -3,14 +3,13 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
+import { Mapping } from '@/api/mapping/mappingModel';
+import { mappingService } from '@/api/mapping/mappingService';
 import { invalidMockMapping, mockMapping } from '@/api/mocks';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { app } from '@/server';
 
-import { Mapping } from '../mappingModel';
-import { mappingService } from '../mappingService';
-
-vi.mock('../mappingService');
+vi.mock('@/api/mapping/mappingService');
 
 vi.mock('@/common/middleware/verifyToken', () => ({
   default: (req: Request, res: Response, next: NextFunction) => next(),

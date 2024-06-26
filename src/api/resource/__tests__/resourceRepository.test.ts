@@ -2,9 +2,8 @@ import { Mock } from 'vitest';
 
 import { mockResource } from '@/api/mocks';
 import { NewResource, ResourceUpdate } from '@/api/resource/resourceModel';
+import { resourceRepository } from '@/api/resource/resourceRepository';
 import { db } from '@/db';
-
-import { resourceRepository } from '../resourceRepository';
 
 vi.mock('@/db');
 

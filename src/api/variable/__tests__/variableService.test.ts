@@ -4,12 +4,11 @@ import { beforeEach, describe, expect, it, Mock, vi } from 'vitest';
 import { validateDictTableId, validateValueSetId } from '@/api/helpers';
 import { mockVariable } from '@/api/mocks';
 import { Variable } from '@/api/variable/variableModel';
+import { variableRepository } from '@/api/variable/variableRepository';
+import { variableService } from '@/api/variable/variableService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 
-import { variableRepository } from '../variableRepository';
-import { variableService } from '../variableService';
-
-vi.mock('../variableRepository');
+vi.mock('@/api/variable/variableRepository');
 vi.mock('@/api/helpers', () => ({
   validateValueSetId: vi.fn(),
   validateDictTableId: vi.fn(),

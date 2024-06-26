@@ -2,13 +2,12 @@ import { StatusCodes } from 'http-status-codes';
 import { describe, expect, it, Mock, vi } from 'vitest';
 
 import { mockValueSet } from '@/api/mocks';
+import { valueSetRepository } from '@/api/valueSet/valueSetRepository';
+import { valueSetService } from '@/api/valueSet/valueSetService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { logger } from '@/server';
 
-import { valueSetRepository } from '../valueSetRepository';
-import { valueSetService } from '../valueSetService';
-
-vi.mock('../valueSetRepository');
+vi.mock('@/api/valueSet/valueSetRepository');
 vi.mock('@/server', () => ({
   logger: {
     error: vi.fn(),

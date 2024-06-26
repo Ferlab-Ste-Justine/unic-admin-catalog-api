@@ -1,4 +1,5 @@
 import { StatusCodes } from 'http-status-codes';
+import jwt from 'jsonwebtoken';
 
 import { analystRepository } from '@/api/analyst/analystRepository';
 import { dictionaryRepository } from '@/api/dictionary/dictionaryRepository';
@@ -7,6 +8,7 @@ import { resourceRepository } from '@/api/resource/resourceRepository';
 import { valueSetRepository } from '@/api/valueSet/valueSetRepository';
 import { valueSetCodeRepository } from '@/api/valueSetCode/valueSetCodeRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
+import { JWT_SECRET, REFRESH_TOKEN_SECRET } from '@/constants';
 
 export const validateValueSetId = async (value_set_id?: number): Promise<ServiceResponse<null>> => {
   if (value_set_id) {
@@ -96,4 +98,12 @@ export const validateDictionaryId = async (dictionary_id?: number): Promise<Serv
     }
   }
   return new ServiceResponse(ResponseStatus.Success, 'Dictionary ID is valid', null, StatusCodes.OK);
+};
+
+export const generateAccessToken = (user_id: number): string => {
+  return jwt.sign({ user_id }, JWT_SECRET, { expiresIn: '1h' });
+};
+
+export const generateRefreshToken = (user_id: number): string => {
+  return jwt.sign({ user_id }, REFRESH_TOKEN_SECRET, { expiresIn: '7d' });
 };
