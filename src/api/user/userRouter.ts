@@ -111,12 +111,12 @@ async function loginUser(req: Request, res: Response) {
     res.cookie('accessToken', loginResponse.responseObject.accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
     res.cookie('refreshToken', loginResponse.responseObject.refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
 
     return handleServiceResponse(
@@ -147,12 +147,12 @@ async function refreshToken(req: Request, res: Response) {
     res.cookie('accessToken', refreshResponse.responseObject.accessToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
     res.cookie('refreshToken', refreshResponse.responseObject.refreshToken, {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
 
     return handleServiceResponse(
@@ -183,13 +183,13 @@ async function logoutUser(req: Request, res: Response) {
     res.clearCookie('refreshToken', {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
 
     res.clearCookie('accessToken', {
       httpOnly: true,
       secure: true,
-      sameSite: 'strict',
+      sameSite: 'none',
     });
   }
 

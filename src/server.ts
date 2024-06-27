@@ -27,7 +27,7 @@ app.use(express.json());
 app.set('trust proxy', true);
 
 // Middlewares
-app.use(cors({ origin: env.CORS_ORIGIN, credentials: true }));
+app.use(cors({ origin: env.CORS_ORIGIN, credentials: true, exposedHeaders: ['Set-Cookie'] }));
 app.use(helmet());
 app.use(cookieParser());
 
