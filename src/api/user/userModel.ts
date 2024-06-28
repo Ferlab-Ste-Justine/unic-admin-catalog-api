@@ -3,6 +3,7 @@ import { ColumnType, Generated, Insertable, Selectable, Updateable } from 'kysel
 import { z } from 'zod';
 
 import { commonValidations } from '@/common/utils/commonValidation';
+import { JwtTokens } from '@/types';
 
 extendZodWithOpenApi(z);
 
@@ -36,6 +37,8 @@ export const LoginUserSchema = z.object({
   }),
 });
 
+export const ValidTokenSchema = z.object({ isValid: z.boolean() });
+
 export interface UserTable {
   id: Generated<number>;
   name: string;
@@ -47,6 +50,9 @@ export interface UserTable {
 
 export type User = Selectable<UserTable>;
 export type PublicUser = Omit<User, 'password'>;
+export type UserWithTokens = JwtTokens & {
+  user: PublicUser;
+};
 export type NewUser = Insertable<UserTable>;
 export type UserUpdate = Updateable<UserTable>;
 

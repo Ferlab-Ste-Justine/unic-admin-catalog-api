@@ -40,9 +40,7 @@ describe('resourceService', () => {
 
       const result = await resourceService.findAll();
 
-      expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Failed, 'No resources found', null, StatusCodes.NOT_FOUND)
-      );
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'No resources found', [], StatusCodes.OK));
     });
 
     it('should handle errors during findAll', async () => {

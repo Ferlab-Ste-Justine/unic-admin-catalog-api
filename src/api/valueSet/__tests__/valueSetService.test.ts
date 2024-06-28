@@ -35,9 +35,7 @@ describe('valueSetService', () => {
 
       const result = await valueSetService.findAll();
 
-      expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Failed, 'No value sets found', null, StatusCodes.NOT_FOUND)
-      );
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'No value sets found', [], StatusCodes.OK));
     });
 
     it('should handle errors during findAll', async () => {

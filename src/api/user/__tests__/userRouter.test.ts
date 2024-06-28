@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import request from 'supertest';
 import { Mock, vi } from 'vitest';
 
-import { invalidMockUser, mockUser } from '@/api/mocks';
+import { invalidMockUser, mockPublicUser, mockUser } from '@/api/mocks';
 import { User } from '@/api/user/userModel';
 import { userService } from '@/api/user/userService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
@@ -18,6 +18,33 @@ vi.mock('@/common/middleware/verifyToken', () => ({
 describe('User API endpoints', () => {
   afterEach(() => {
     vi.clearAllMocks();
+  });
+
+  describe('GET /users/verify', () => {
+    it('should verify a user token', async () => {
+      const verifyTokenResponse = new ServiceResponse(
+        ResponseStatus.Success,
+        'Token is valid',
+        { isValid: true },
+        StatusCodes.OK
+      );
+
+      (userService.verifyToken as Mock).mockResolvedValue(verifyTokenResponse);
+
+      const response = await request(app).get('/users/verify').set('Cookie', ['accessToken=validRefreshToken']).send();
+
+      expect(response.statusCode).toEqual(StatusCodes.OK);
+      expect(response.body.success).toBeTruthy();
+      expect(response.body.responseObject).toEqual({ isValid: true });
+    });
+
+    it('should return error for invalid or missing token on logout', async () => {
+      const response = await request(app).get('/users/verify').send();
+
+      expect(response.statusCode).toEqual(StatusCodes.UNAUTHORIZED);
+      expect(response.body.success).toBeFalsy();
+      expect(response.body.responseObject).toEqual({ isValid: false });
+    });
   });
 
   describe('GET /users', () => {
@@ -103,7 +130,11 @@ describe('User API endpoints', () => {
 
   describe('POST /users/login', () => {
     const loginCredentials = { email: 'user@example.com', password: 'password' };
-    const loginResponse = { token: 'token' };
+    const loginResponse = {
+      accessToken: 'AccessToken',
+      refreshToken: 'RefreshToken',
+      user: mockPublicUser,
+    };
 
     it('should log in a user', async () => {
       (userService.login as Mock).mockResolvedValue(
@@ -114,7 +145,7 @@ describe('User API endpoints', () => {
 
       expect(response.statusCode).toEqual(StatusCodes.OK);
       expect(response.body.success).toBeTruthy();
-      expect(response.body.responseObject).toEqual(null);
+      expect(response.body.responseObject).toEqual(mockPublicUser);
     });
 
     it('should return error for invalid credentials', async () => {

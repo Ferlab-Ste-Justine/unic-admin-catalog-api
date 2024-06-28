@@ -18,7 +18,7 @@ export const resourceService = {
     try {
       const resources = await resourceRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!resources.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No resources found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No resources found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Resources found', resources, StatusCodes.OK);
     } catch (error) {

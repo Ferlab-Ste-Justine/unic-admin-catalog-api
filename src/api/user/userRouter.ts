@@ -8,7 +8,14 @@ import verifyToken from '@/common/middleware/verifyToken';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
 import { handleServiceResponse, validateRequest } from '@/common/utils/httpHandlers';
 
-import { GetUserSchema, LoginUserSchema, PublicUserSchema, RegisterUserSchema, UserSchema } from './userModel';
+import {
+  GetUserSchema,
+  LoginUserSchema,
+  PublicUserSchema,
+  RegisterUserSchema,
+  UserSchema,
+  ValidTokenSchema,
+} from './userModel';
 import { userService } from './userService';
 
 export const userRegistry = new OpenAPIRegistry();
@@ -16,6 +23,14 @@ userRegistry.register('User', UserSchema);
 
 export const userRouter: Router = (() => {
   const router = express.Router();
+
+  userRegistry.registerPath({
+    method: 'get',
+    path: '/users/verify',
+    tags: ['User'],
+    responses: createApiResponse(ValidTokenSchema, 'Success'),
+  });
+  router.get('/verify', verifyTokenValidity);
 
   userRegistry.registerPath({
     method: 'get',
@@ -122,7 +137,7 @@ async function loginUser(req: Request, res: Response) {
     return handleServiceResponse(
       {
         ...loginResponse,
-        responseObject: null,
+        responseObject: loginResponse.responseObject?.user,
       },
       res
     );
@@ -136,7 +151,7 @@ async function refreshToken(req: Request, res: Response) {
 
   if (!refreshToken) {
     return handleServiceResponse(
-      new ServiceResponse(ResponseStatus.Failed, 'Invalid refresh token', null, StatusCodes.UNAUTHORIZED),
+      new ServiceResponse(ResponseStatus.Failed, 'Invalid  or missing refresh token', null, StatusCodes.UNAUTHORIZED),
       res
     );
   }
@@ -165,6 +180,25 @@ async function refreshToken(req: Request, res: Response) {
   }
 
   handleServiceResponse(refreshResponse, res);
+}
+
+async function verifyTokenValidity(req: Request, res: Response) {
+  const accessToken = req.cookies['accessToken'];
+  if (!accessToken) {
+    return handleServiceResponse(
+      new ServiceResponse(
+        ResponseStatus.Failed,
+        'Invalid or missing access token',
+        { isValid: false },
+        StatusCodes.UNAUTHORIZED
+      ),
+      res
+    );
+  }
+
+  const verifyTokenResponse = await userService.verifyToken(accessToken);
+
+  handleServiceResponse(verifyTokenResponse, res);
 }
 
 async function logoutUser(req: Request, res: Response) {

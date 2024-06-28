@@ -12,7 +12,7 @@ export const valueSetCodeService = {
     try {
       const valueSetCodes = await valueSetCodeRepository.findAll();
       if (!valueSetCodes.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No Value Set Codes found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No Value Set Codes found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Value Set Codes found', valueSetCodes, StatusCodes.OK);
     } catch (error) {

@@ -40,9 +40,7 @@ describe('dictTableService', () => {
 
       const result = await dictTableService.findAll();
 
-      expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Failed, 'No DictTables found', null, StatusCodes.NOT_FOUND)
-      );
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'No DictTables found', [], StatusCodes.OK));
     });
 
     it('should handle errors during findAll', async () => {

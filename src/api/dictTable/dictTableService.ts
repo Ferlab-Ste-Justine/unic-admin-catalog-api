@@ -18,7 +18,7 @@ export const dictTableService = {
     try {
       const dictTables = await dictTableRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!dictTables.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No DictTables found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No DictTables found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'DictTables found', dictTables, StatusCodes.OK);
     } catch (error) {

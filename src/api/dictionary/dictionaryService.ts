@@ -12,7 +12,7 @@ export const dictionaryService = {
     try {
       const dictionaries = await dictionaryRepository.findAll();
       if (!dictionaries.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No dictionaries found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No dictionaries found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Dictionaries found', dictionaries, StatusCodes.OK);
     } catch (error) {

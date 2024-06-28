@@ -40,7 +40,7 @@ describe('valueSetCodeService', () => {
       const result = await valueSetCodeService.findAll();
 
       expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Failed, 'No Value Set Codes found', null, StatusCodes.NOT_FOUND)
+        new ServiceResponse(ResponseStatus.Success, 'No Value Set Codes found', [], StatusCodes.OK)
       );
     });
 

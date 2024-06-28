@@ -44,9 +44,7 @@ describe('variableService', () => {
 
       const result = await variableService.findAll();
 
-      expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Failed, 'No Variables found', null, StatusCodes.NOT_FOUND)
-      );
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'No Variables found', [], StatusCodes.OK));
     });
 
     it('should handle errors during findAll', async () => {

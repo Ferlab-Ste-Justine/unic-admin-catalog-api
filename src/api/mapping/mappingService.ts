@@ -12,7 +12,7 @@ export const mappingService = {
     try {
       const mappings = await mappingRepository.findAll();
       if (!mappings.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No Mappings found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No Mappings found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Mappings found', mappings, StatusCodes.OK);
     } catch (error) {

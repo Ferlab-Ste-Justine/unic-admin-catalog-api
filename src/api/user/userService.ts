@@ -3,21 +3,21 @@ import { StatusCodes } from 'http-status-codes';
 import jwt, { JwtPayload } from 'jsonwebtoken';
 
 import { generateAccessToken, generateRefreshToken } from '@/api/helpers';
-import { NewUser, PublicUser, User } from '@/api/user/userModel';
+import { NewUser, PublicUser, User, UserWithTokens } from '@/api/user/userModel';
 import { userRepository } from '@/api/user/userRepository';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
-import { REFRESH_TOKEN_SECRET } from '@/constants';
+import { JWT_SECRET, REFRESH_TOKEN_SECRET } from '@/constants';
 import { logger } from '@/server';
-import { JwtTokens, TokenPayload } from '@/types';
+import { JwtTokens, TokenPayload, TokenValidation } from '@/types';
 
 export const userService = {
   findAll: async (): Promise<ServiceResponse<PublicUser[] | null>> => {
     try {
       const users = await userRepository.findAll();
       if (!users) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No Users found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No Users found', [], StatusCodes.OK);
       }
-      return new ServiceResponse<PublicUser[]>(ResponseStatus.Success, 'Users found', users, StatusCodes.OK);
+      return new ServiceResponse(ResponseStatus.Success, 'Users found', users, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error finding all users: ${(error as Error).message}`;
       logger.error(errorMessage);
@@ -31,7 +31,7 @@ export const userService = {
       if (!user) {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
       }
-      return new ServiceResponse<PublicUser>(ResponseStatus.Success, 'User found', user, StatusCodes.OK);
+      return new ServiceResponse(ResponseStatus.Success, 'User found', user, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error finding user with id ${id}: ${(error as Error).message}`;
       logger.error(errorMessage);
@@ -47,12 +47,7 @@ export const userService = {
       }
 
       const createdUser = await userRepository.create(user);
-      return new ServiceResponse<PublicUser>(
-        ResponseStatus.Success,
-        'User created successfully',
-        createdUser,
-        StatusCodes.CREATED
-      );
+      return new ServiceResponse(ResponseStatus.Success, 'User created successfully', createdUser, StatusCodes.CREATED);
     } catch (error) {
       const errorMessage = `Error creating user: ${(error as Error).message}`;
       logger.error(errorMessage);
@@ -60,7 +55,7 @@ export const userService = {
     }
   },
 
-  login: async (email: string, password: string): Promise<ServiceResponse<JwtTokens | null>> => {
+  login: async (email: string, password: string): Promise<ServiceResponse<UserWithTokens | null>> => {
     try {
       const user = await userRepository.findByEmail(email);
 
@@ -68,7 +63,8 @@ export const userService = {
         return new ServiceResponse(ResponseStatus.Failed, 'User not found', null, StatusCodes.NOT_FOUND);
       }
 
-      const passwordMatch = await bcrypt.compare(password, user.password);
+      const { password: userPassword, ...publicUser } = user;
+      const passwordMatch = await bcrypt.compare(password, userPassword);
 
       if (!passwordMatch) {
         return new ServiceResponse(ResponseStatus.Failed, 'Invalid credentials', null, StatusCodes.BAD_REQUEST);
@@ -79,10 +75,10 @@ export const userService = {
 
       await userRepository.saveRefreshToken(user.id, refreshToken);
 
-      return new ServiceResponse<JwtTokens>(
+      return new ServiceResponse(
         ResponseStatus.Success,
         'Login successful',
-        { accessToken, refreshToken },
+        { accessToken, refreshToken, user: publicUser },
         StatusCodes.OK
       );
     } catch (error) {
@@ -105,7 +101,7 @@ export const userService = {
       const newRefreshToken = generateRefreshToken(decoded.user_id);
       await userRepository.saveRefreshToken(decoded.user_id, newRefreshToken);
 
-      return new ServiceResponse<JwtTokens>(
+      return new ServiceResponse(
         ResponseStatus.Success,
         'Token refreshed successfully',
         { accessToken: newAccessToken, refreshToken: newRefreshToken },
@@ -118,11 +114,28 @@ export const userService = {
     }
   },
 
+  verifyToken: async (accessToken: string): Promise<ServiceResponse<TokenValidation>> => {
+    try {
+      jwt.verify(accessToken, JWT_SECRET);
+
+      return new ServiceResponse(ResponseStatus.Success, 'Token is valid', { isValid: true }, StatusCodes.OK);
+    } catch (error) {
+      const errorMessage = `Error validating token: ${(error as Error).message}`;
+      logger.error(errorMessage);
+      return new ServiceResponse(
+        ResponseStatus.Failed,
+        errorMessage,
+        { isValid: false },
+        StatusCodes.INTERNAL_SERVER_ERROR
+      );
+    }
+  },
+
   logout: async (refreshToken: string): Promise<ServiceResponse<null>> => {
     try {
       const decoded = jwt.verify(refreshToken, REFRESH_TOKEN_SECRET) as JwtPayload;
       await userRepository.deleteRefreshToken(decoded.user_id);
-      return new ServiceResponse<null>(ResponseStatus.Success, 'Logout successful', null, StatusCodes.OK);
+      return new ServiceResponse(ResponseStatus.Success, 'Logout successful', null, StatusCodes.OK);
     } catch (error) {
       const errorMessage = `Error logging out: ${(error as Error).message}`;
       logger.error(errorMessage);

@@ -20,7 +20,7 @@ export const variableService = {
     try {
       const variables = await variableRepository.findAll(searchField, searchValue, sortBy, sortOrder, limit, offset);
       if (!variables.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No Variables found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No Variables found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Variables found', variables, StatusCodes.OK);
     } catch (error) {

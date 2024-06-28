@@ -41,9 +41,7 @@ describe('dictionaryService', () => {
 
       const result = await dictionaryService.findAll();
 
-      expect(result).toEqual(
-        new ServiceResponse(ResponseStatus.Failed, 'No dictionaries found', null, StatusCodes.NOT_FOUND)
-      );
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'No dictionaries found', [], StatusCodes.OK));
     });
 
     it('should handle errors during findAll', async () => {

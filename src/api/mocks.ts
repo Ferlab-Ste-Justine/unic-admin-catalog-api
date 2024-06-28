@@ -3,7 +3,7 @@ import { Dictionary } from '@/api/dictionary/dictionaryModel';
 import { DictTable } from '@/api/dictTable/dictTableModel';
 import { Mapping } from '@/api/mapping/mappingModel';
 import { Resource } from '@/api/resource/resourceModel';
-import { User } from '@/api/user/userModel';
+import { PublicUser, User } from '@/api/user/userModel';
 import { ValueSet } from '@/api/valueSet/valueSetModel';
 import { ValueSetCode } from '@/api/valueSetCode/valueSetCodeModel';
 import { Variable } from '@/api/variable/variableModel';
@@ -143,6 +143,14 @@ export const mockUser: User = {
   name: 'Mock User',
   email: 'mockuser@example.com',
   password: 'Newpassword!23',
+  created_at: new Date().toString() as unknown as Date,
+  updated_at: new Date().toString() as unknown as Date,
+};
+
+export const mockPublicUser: PublicUser = {
+  id: 1,
+  name: 'Mock User',
+  email: 'mockuser@example.com',
   created_at: new Date().toString() as unknown as Date,
   updated_at: new Date().toString() as unknown as Date,
 };

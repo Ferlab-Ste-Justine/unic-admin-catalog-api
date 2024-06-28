@@ -17,7 +17,7 @@ export const valueSetService = {
     try {
       const valueSets = await valueSetRepository.findAll(searchField, searchValue, sortBy, sortOrder);
       if (!valueSets.length) {
-        return new ServiceResponse(ResponseStatus.Failed, 'No value sets found', null, StatusCodes.NOT_FOUND);
+        return new ServiceResponse(ResponseStatus.Success, 'No value sets found', [], StatusCodes.OK);
       }
       return new ServiceResponse(ResponseStatus.Success, 'Value sets found', valueSets, StatusCodes.OK);
     } catch (error) {

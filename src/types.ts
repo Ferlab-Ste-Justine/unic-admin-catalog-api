@@ -49,3 +49,5 @@ export type JwtTokens = {
   accessToken: string;
   refreshToken: string;
 };
+
+export type TokenValidation = { isValid: boolean };

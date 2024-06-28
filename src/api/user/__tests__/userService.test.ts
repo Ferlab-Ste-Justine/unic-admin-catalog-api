@@ -3,7 +3,7 @@ import { StatusCodes } from 'http-status-codes';
 import jwt from 'jsonwebtoken';
 import { describe, expect, it, Mock, vi } from 'vitest';
 
-import { mockUser } from '@/api/mocks';
+import { mockPublicUser, mockUser } from '@/api/mocks';
 import { userRepository } from '@/api/user/userRepository';
 import { userService } from '@/api/user/userService';
 import { ResponseStatus, ServiceResponse } from '@/common/models/serviceResponse';
@@ -35,7 +35,7 @@ describe('userService', () => {
 
       const result = await userService.findAll();
 
-      expect(result).toEqual(new ServiceResponse(ResponseStatus.Failed, 'No Users found', null, StatusCodes.NOT_FOUND));
+      expect(result).toEqual(new ServiceResponse(ResponseStatus.Success, 'No Users found', [], StatusCodes.OK));
     });
 
     it('should handle errors during findAll', async () => {
@@ -136,17 +136,11 @@ describe('userService', () => {
   describe('login', () => {
     const email = 'user@example.com';
     const password = 'password';
-    const user = {
-      id: 1,
-      name: 'User',
-      email,
-      password: '$2b$10$9yP/l/ZC.PVGDFR3cFv1jOpbp5C0IMz3FY/JYZ6VhTQLkvhlv3Z6W',
-    };
     const newAccessToken = 'newAccessToken';
     const newRefreshToken = 'newRefreshToken';
 
     it('should log in a user', async () => {
-      (userRepository.findByEmail as Mock).mockResolvedValueOnce(user);
+      (userRepository.findByEmail as Mock).mockResolvedValueOnce(mockUser);
       (bcrypt.compare as Mock).mockResolvedValueOnce(true);
       (jwt.sign as Mock).mockReturnValueOnce(newAccessToken);
       (jwt.sign as Mock).mockReturnValueOnce(newRefreshToken);
@@ -160,6 +154,7 @@ describe('userService', () => {
           {
             accessToken: newAccessToken,
             refreshToken: newRefreshToken,
+            user: mockPublicUser,
           },
           StatusCodes.OK
         )
@@ -175,7 +170,7 @@ describe('userService', () => {
     });
 
     it('should return invalid credentials if password does not match during login', async () => {
-      (userRepository.findByEmail as Mock).mockResolvedValueOnce(user);
+      (userRepository.findByEmail as Mock).mockResolvedValueOnce(mockUser);
       (bcrypt.compare as Mock).mockResolvedValueOnce(false);
 
       const result = await userService.login(email, password);
@@ -308,7 +303,7 @@ describe('userService', () => {
 
     it('should handle errors during logout', async () => {
       const refreshToken = 'refreshToken';
-      const errorMessage = 'Database connection error';
+      const errorMessage = 'Unable to verify token';
 
       (jwt.verify as Mock).mockImplementationOnce(() => {
         throw new Error(errorMessage);
@@ -321,6 +316,40 @@ describe('userService', () => {
           ResponseStatus.Failed,
           `Error logging out: ${errorMessage}`,
           null,
+          StatusCodes.INTERNAL_SERVER_ERROR
+        )
+      );
+    });
+  });
+  describe('verifyToken', () => {
+    it('should verify a user token', async () => {
+      const accessToken = 'refreshToken';
+      const decodedToken = { user_id: 1 };
+
+      (jwt.verify as Mock).mockReturnValueOnce(decodedToken);
+
+      const result = await userService.verifyToken(accessToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(ResponseStatus.Success, 'Token is valid', { isValid: true }, StatusCodes.OK)
+      );
+    });
+
+    it('should handle errors during token validation', async () => {
+      const accessToken = 'refreshToken';
+      const errorMessage = 'Database connection error';
+
+      (jwt.verify as Mock).mockImplementationOnce(() => {
+        throw new Error(errorMessage);
+      });
+
+      const result = await userService.verifyToken(accessToken);
+
+      expect(result).toEqual(
+        new ServiceResponse(
+          ResponseStatus.Failed,
+          `Error validating token: ${errorMessage}`,
+          { isValid: false },
           StatusCodes.INTERNAL_SERVER_ERROR
         )
       );
